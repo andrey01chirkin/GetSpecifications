@@ -1,6 +1,4 @@
-using System;
-using System.Collections.Generic;
-using Multicad;                              // McObjectId, McObject, McProperty, ExValue
+using Multicad;                              
 using Multicad.DatabaseServices;
 using Multicad.DatabaseServices.StandardObjects;
 using Multicad.Geometry;
@@ -11,15 +9,20 @@ using HostMgd.EditorInput;
 
 namespace GetSpecifications
 {
+    /// <summary>
+    /// Команда InsertParamObject — вставка параметрических объектов СПДС вдоль полилинии.
+    /// Если объект имеет атрибут rOtmetkaZemli, применяется алгоритм привязки к уровню земли.
+    /// </summary>
     public class InsertParamObjectCommand
     {
+        // Системное имя атрибута отметки земли в скрипте параметрического объекта СПДС
         private const string GROUND_LEVEL_ATTR = "rOtmetkaZemli";
 
-        private static void Msg(string text)
-            => Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage(text);
+        private static Editor Ed
+            => Application.DocumentManager.MdiActiveDocument.Editor;
 
-        private static Editor? Ed
-            => Application.DocumentManager.MdiActiveDocument?.Editor;
+        private static void Msg(string text)
+            => Ed.WriteMessage(text);
 
         [CommandMethod("InsertParamObject", CommandFlags.NoCheck | CommandFlags.NoPrefix)]
         public void InsertParamObject()
@@ -60,16 +63,14 @@ namespace GetSpecifications
         }
 
         // ---------------------------------------------------------------
-        //  Выбор объектов с повтором при промахе
-        //  PromptStatus.Cancel  — Escape → выходим (return null)
-        //  PromptStatus.OK      — объект выбран → проверяем тип
-        //  иначе                — промах → повторяем запрос
+        //  Выбор объектов с повтором при промахе.
+        //  PromptStatus.Cancel — Escape → возвращаем null, команда завершается.
+        //  PromptStatus.OK     — объект выбран → проверяем тип, при несоответствии просим снова.
+        //  Иначе               — промах мимо объекта → повторяем запрос.
         // ---------------------------------------------------------------
 
         private McParametricObject? SelectParametricObject()
         {
-            if (Ed == null) return null;
-
             var opts = new PromptEntityOptions("\nВыберите параметрический объект или [?]: ");
             opts.AllowNone = false;
 
@@ -86,6 +87,7 @@ namespace GetSpecifications
                     continue;
                 }
 
+                // HostMgd возвращает платформенный ObjectId — преобразуем в McObjectId через OldIdPtr
                 McObject obj = McObjectManager.GetObject(
                     new McObjectId(res.ObjectId.OldIdPtr));
 
@@ -93,14 +95,12 @@ namespace GetSpecifications
                     return paramObj;
 
                 Msg($"\nВыбранный объект не является параметрическим СПДС" +
-                    $" ({obj?.GetType().Name ?? "null"}). Попробуйте ещё раз.");
+                    $" ({obj.GetType().Name}). Попробуйте ещё раз.");
             }
         }
 
         private DbPolyline? SelectPolyline()
         {
-            if (Ed == null) return null;
-
             var opts = new PromptEntityOptions(
                 "\nВыберите полилинию для простановки параметрического объекта или [?]: ");
             opts.AllowNone = false;
@@ -118,6 +118,7 @@ namespace GetSpecifications
                     continue;
                 }
 
+                // HostMgd возвращает платформенный ObjectId — преобразуем в McObjectId через OldIdPtr
                 McObject obj = McObjectManager.GetObject(
                     new McObjectId(res.ObjectId.OldIdPtr));
 
@@ -125,12 +126,12 @@ namespace GetSpecifications
                     return dbPoly;
 
                 Msg($"\nВыбранный объект не является полилинией" +
-                    $" ({obj?.GetType().Name ?? "null"}). Попробуйте ещё раз.");
+                    $" ({obj.GetType().Name}). Попробуйте ещё раз.");
             }
         }
 
         // ---------------------------------------------------------------
-        //  Получение вершин полилинии
+        //  Возвращает список вершин полилинии через коллекцию Points.
         // ---------------------------------------------------------------
         private List<Point3d> GetPolylineVertices(Polyline3d polyline)
         {
@@ -142,19 +143,16 @@ namespace GetSpecifications
         }
 
         // ---------------------------------------------------------------
-        //  Чтение и запись параметра rOtmetkaZemli
+        //  Чтение и запись атрибута rOtmetkaZemli параметрического объекта.
         //
+        //  Атрибуты скрипта СПДС хранятся в DbEntity.ObjectProperties (коллекция McProperty).
         //  McProperty наследует PropertyDescriptor (.NET):
-        //    GetValue(component)       — component = McParametricObject
-        //    SetValue(component, val)  — component = McParametricObject
-        //  GetParamLocalName(name)     — проверка наличия параметра у типа объекта
+        //    GetValue(component) / SetValue(component, val) — component = McParametricObject.
         // ---------------------------------------------------------------
 
+        // Возвращает значение rOtmetkaZemli или null если атрибут отсутствует у данного типа объекта
         private double? GetGroundLevelAttribute(McParametricObject paramObj)
         {
-            if (string.IsNullOrWhiteSpace(paramObj.GetParamLocalName(GROUND_LEVEL_ATTR)))
-                return null;
-
             foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
             {
                 if (prop.Name != GROUND_LEVEL_ATTR) continue;
@@ -175,14 +173,17 @@ namespace GetSpecifications
         }
 
         // ---------------------------------------------------------------
-        //  Вставка С атрибутом rOtmetkaZemli
+        //  Вставка с учётом атрибута rOtmetkaZemli.
+        //
+        //  Все объекты вставляются на одну общую горизонтальную отметку Ycommon,
+        //  а индивидуальная отметка земли каждого задаётся через rOtmetkaZemli.
         //
         //  Алгоритм:
         //    Ymin    = min(Y всех вершин полилинии)
-        //    Ycommon = Ymin - R0
+        //    Ycommon = Ymin - R0          — общая отметка вставки (ниже самой низкой вершины на R0)
         //    Для каждой вершины (Xi, Yi):
-        //      Origin = (Xi, Ycommon, 0)
-        //      rOtmetkaZemli = Yi - Ycommon   (= R0 + (Yi - Ymin))
+        //      Origin        = (Xi, Ycommon, 0)
+        //      rOtmetkaZemli = Yi - Ycommon    (= R0 + (Yi - Ymin))
         // ---------------------------------------------------------------
         private int InsertWithGroundLevel(
             McParametricObject source,
@@ -225,7 +226,7 @@ namespace GetSpecifications
         }
 
         // ---------------------------------------------------------------
-        //  Вставка БЕЗ атрибута rOtmetkaZemli — точно в вершины
+        //  Вставка без учёта rOtmetkaZemli — объекты размещаются точно в вершины полилинии.
         // ---------------------------------------------------------------
         private int InsertAtVertices(McParametricObject source, List<Point3d> vertices)
         {
@@ -250,7 +251,9 @@ namespace GetSpecifications
         }
 
         // ---------------------------------------------------------------
-        //  Клонирование
+        //  Клонирует параметрический объект и добавляет копию в текущий документ.
+        //  Clone() возвращает object → приводим через as McDbObject.
+        //  Объект извлекается через McDbObject.Entity.
         // ---------------------------------------------------------------
         private McParametricObject? CloneParametricObject(McParametricObject source)
         {
