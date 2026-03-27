@@ -28,7 +28,7 @@
 | Откуда | Родной API nanoCAD | Совместимый слой (похож на AutoCAD API) |
 | Примеры | `McObjectManager`, `McParametricObject` | `Editor.WriteMessage`, `PromptEntityOptions` |
 
-На практике **всегда используются оба** — MultiCAD для работы с объектами, HostMgd для взаимодействия с пользователем:
+На практике — MultiCAD для работы с объектами, HostMgd для взаимодействия с пользователем:
 
 ```csharp
 // MultiCAD — выбор объекта на чертеже
@@ -88,18 +88,31 @@ paramObj.DbObject.Clone()   // клонировать
 ## 2. Пространства имён
 
 ```csharp
-using Multicad;                                   // McObjectId, McObject
-using Multicad.AplicationServices;               // McContext (ВАЖНО: одна 'p' — AplicationServices)
+using Multicad;                                   // McObjectId, McObject, McProperty, ExValue
 using Multicad.CustomObjectBase;                 // McCustomBase
 using Multicad.DatabaseServices;                 // McObjectManager, McDocumentsManager, McDbObject, McDbEntity
 using Multicad.DatabaseServices.StandardObjects; // DbPolyline, Polyline3d
 using Multicad.Geometry;                         // Point3d, Vector3d, Matrix3d, Plane3d
 using Multicad.Objects;                          // McParametricObject
 using Multicad.Runtime;                          // CommandMethod, CommandFlags
+using Multicad.Symbols.Tables;                   // McTable, SectionTypeEnum, BorderTypesEnum, HorizTextAlign, VertTextAlign
 // Совместимый слой HostMgd:
 using HostMgd.ApplicationServices;              // Application → Editor.WriteMessage
 using HostMgd.EditorInput;                      // PromptEntityOptions, PromptStatus
 ```
+
+### ⚠️ using-директивы — НИКОГДА не писать
+
+Следующие директивы вызывают ошибки компиляции или не нужны — не добавлять их в файл:
+
+```csharp
+using Multicad.AplicationServices; // ❌ вызывает CS0234 — пространства имён нет в nanoCAD 26
+using System;                      // ❌ не нужен — типы доступны без него в .NET 6
+using System.Collections.Generic;  // ❌ не нужен
+using System.Linq;                 // ❌ не нужен
+```
+
+> `McContext` (единственный класс из `AplicationServices`) в nanoCAD 26 недоступен через этот namespace. Если нужен вывод уведомлений — использовать `HostMgd.ApplicationServices.Application`.
 
 ---
 
@@ -125,16 +138,18 @@ public void CommandName()
 ## 4. Иерархия ключевых классов
 
 ```
-McObject  (реализует: IMcOverlay, IMcSerializable, IMcStreamSerializable,
-           MarshalByRefObject, IDisposable, Mc3D::I3dQueryable)
+MarshalByRefObject  (.NET)
 │
-├── McEntity  (Multicad.DatabaseServices)
-│   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← параметрические объекты СПДС
-│
-└── McDbObject  (Multicad.DatabaseServices)
-    └── McDbEntity  (Multicad.DatabaseServices)
+└── McObject  (Multicad) : IMcSerializable, IMcStreamSerializable, IDisposable
+      │
+      ├── McEntity  (Multicad.DatabaseServices)
+      │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
+      │   └── McCdEntity    (Multicad.DatabaseServices) : IMcOverlay
+      │       └── McParametricObject (Multicad.Objects) : I3dQueryable  ← СПДС объекты
+      │
+      └── McPropertySource  (Multicad.DatabaseServices)  ← CustomProperties, ObjectProperties
+            └── McDbObject  (Multicad.DatabaseServices) : ICloneable
+                  └── McDbEntity  (Multicad.DatabaseServices)
 ```
 
 ⚠️ **McParametricObject НЕ наследует McCustomBase** — это разные ветки!  
@@ -589,7 +604,8 @@ foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
 ```
 
 ⚠️ **`component` в `GetValue`/`SetValue` = сам `McParametricObject`**, не `DbObject` и не `DbEntity`.  
-⚠️ **`DbObject.Params`** содержит настройки приложения (строка БД, версия и т.д.) — **не параметры скрипта**.
+⚠️ **`DbObject.Params`** содержит настройки приложения (строка БД, версия и т.д.) — **не параметры скрипта**.  
+⚠️ **`SetValue` vs `Change()`:** если новое значение совпадает со старым, `SetValue` может **не запустить пересчёт скрипта** — ручки объекта не обновятся. `Change(ExValue, false)` запускает пересчёт **всегда**, независимо от того, изменилось ли значение. Предпочитайте `Change()` когда объект уже перемещён через `Transform`.
 
 ---
 
@@ -659,11 +675,14 @@ paramObj.Change(ev, false);  // false = без каскадного пересч
 Это **разные ветки** иерархии! `is McCustomBase` для параметрического объекта вернёт `false`.
 
 ```
-McObject
+McObject : IMcSerializable, IMcStreamSerializable, IDisposable
 ├── McEntity
 │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← СПДС объекты
+│   └── McCdEntity : IMcOverlay (Multicad.DatabaseServices)
+│       └── McParametricObject : I3dQueryable (Multicad.Objects) ← СПДС объекты
+└── McPropertySource
+    └── McDbObject : ICloneable
+        └── McDbEntity
 ```
 
 ### Выбор и проверка типа
@@ -702,15 +721,22 @@ McParametricObject CloneParamObj(McParametricObject source)
 ```
 
 ### Позиционирование объекта
+
+> ⚠️ **ВАЖНО: для `McParametricObject` всегда использовать `Transform`, а не `Origin =`!**  
+> `Origin =` обновляет только метаданные точки вставки, но **не перемещает физическую геометрию объекта**.  
+> В результате ручки (grips) остаются на исходной позиции (месте шаблона), а сам объект визуально не переезжает корректно.  
+> `DbEntity.Transform()` перемещает весь объект целиком — геометрию, ручки и метаданные.
+
 ```csharp
-// Для McParametricObject — через свойство Origin:
-paramObj.Origin = targetPoint;
+// ✅ ПРАВИЛЬНО — для McParametricObject (и для McCustomBase):
+Vector3d displacement = targetPoint - paramObj.Origin;
+Matrix3d matrix = Matrix3d.Displacement(displacement);
+paramObj.DbEntity.Transform(matrix);  // НЕ TransformBy!
 paramObj.DbObject.Update();
 
-// Для McCustomBase (общий случай) — через Transform:
-Vector3d displacement = targetPoint - Point3d.Origin;
-Matrix3d matrix = Matrix3d.Displacement(displacement);
-customBase.DbEntity.Transform(matrix);  // НЕ TransformBy!
+// ❌ НЕПРАВИЛЬНО — ручки остаются на месте шаблона:
+// paramObj.Origin = targetPoint;
+// paramObj.DbObject.Update();
 ```
 
 ### Проверка и чтение параметра скрипта СПДС
@@ -847,6 +873,166 @@ namespace MyPlugin
 
 ---
 
+## 22. McTable — таблицы
+
+**Namespace:** `Multicad.Symbols.Tables`  
+**Класс:** `McTable`  
+Таблица на чертеже. Наследует `McObject` (имеет `DbObject`, `DbEntity`).
+
+### 22a. Правильный паттерн создания таблицы
+
+> ⚠️ **Критическое правило:** `table[row, col]` работает как **глобальный** индексатор (охватывает все секции) **только тогда**, когда **все секции** созданы через `InsertSection`. При смешанном использовании (`InsertSection` + `SetRowCountAbs`) `table[row, col]` адресует **только секцию данных**, что приводит к конфликту адресации.
+
+> ⚠️ `SetRowCountAbs`, `SetCellText(row, col, ...)`, `SetCellHorizAlign(...)` и аналогичные методы `Set*` — адресуют **только секцию данных**. Не использовать совместно с `InsertSection`.
+
+**Единственный правильный паттерн:**
+
+```csharp
+var table = new McTable();
+
+// 1. Столбцы — через Columns.AddRange
+table.Columns.AddRange(0, totalCols);
+table.Columns[0].Width = 20.0;
+table.Columns[1].Width = 60.0;
+// ...
+
+// 2. Все секции — через InsertSection:
+//   SectionTypeEnum.HeaderFirst — колонтитул первой страницы
+//   SectionTypeEnum.Header      — обычный колонтитул (повторяется на каждой странице)
+//   SectionTypeEnum.None        — секция данных
+table.Rows.InsertSection(SectionTypeEnum.HeaderFirst, 0, 2);  // 2 строки колонтитула
+table.Rows.InsertSection(SectionTypeEnum.None,        2, dataRows); // строки данных
+
+// 3. Высоты строк — через Rows[row].Height (глобальный индекс)
+table.Rows[0].Height = 10.0;   // строка 0 HeaderFirst
+table.Rows[1].Height = 8.0;    // строка 1 HeaderFirst
+table.Rows[2].Height = 6.0;    // первая строка данных
+
+// 4. Ячейки — через table[row, col] (глобальный индекс)
+table[0, 0].Value               = "Заголовок таблицы";
+table[0, 0].TextHeight          = 5.0;
+table[0, 0].HorizontalTextAlign = HorizTextAlign.Center;
+table[0, 0].VerticalTextAlign   = VertTextAlign.Center;
+
+// 5. Объединение ячеек
+table.Merge(new McTable.RectRange(0, 0, totalCols - 1, 0)); // (left, top, right, bottom)
+
+// 6. Добавить в документ и разместить
+table.DbObject.AddToCurrentDocument();
+table.DbEntity.Layer = "MyLayer";
+table.DbEntity.Transform(Matrix3d.Displacement(new Vector3d(x, y, 0)));
+table.DbObject.Update();
+```
+
+### 22b. SectionTypeEnum
+
+| Значение | Описание |
+|----------|----------|
+| `HeaderFirst` | Колонтитул первой страницы (не повторяется при разбивке) |
+| `Header` | Обычный колонтитул (повторяется на каждой странице кроме первой) |
+| `None` | Секция данных |
+
+### 22c. Класс Cell — свойства ячейки
+
+Доступ: `table[row, col]` — возвращает `Cell`.
+
+| Свойство | Тип | Описание |
+|----------|-----|----------|
+| `Value` | `string` | Содержимое ячейки |
+| `TextHeight` | `double` | Высота текста |
+| `TextStyle` | `string` | Имя текстового стиля (**не** `TextStyleName`!) |
+| `HorizontalTextAlign` | `HorizTextAlign` | Горизонтальное выравнивание |
+| `VerticalTextAlign` | `VertTextAlign` | Вертикальное выравнивание |
+| `FillColor` | | Цвет заливки |
+| `TextColor` | | Цвет текста |
+| `Enabled` | `bool` | Активность ячейки |
+| `ValueFormula` | `string` | Формула значения |
+
+| Метод | Описание |
+|-------|----------|
+| `SetBorderLineweight(BorderTypesEnum, int)` | Установить толщину линии стороны ячейки |
+
+### 22d. BorderTypesEnum
+
+| Значение | Описание |
+|----------|----------|
+| `All` | Все стороны |
+| `Top` | Верхняя |
+| `Bottom` | Нижняя |
+| `Left` | Левая |
+| `Right` | Правая |
+| `Vertical` | Все вертикальные линии |
+| `Horizontal` | Все горизонтальные линии |
+| `ButBottom` | Все стороны **кроме** нижней |
+
+**Значение lineweight:** целое число в сотых долях мм. `50` = 0,50 мм, `25` = 0,25 мм, `-9` = невидимая линия.
+
+### 22e. McTable.RectRange
+
+Используется в `table.Merge(range)`.
+
+```csharp
+// Конструктор: (left, top, right, bottom) = (startCol, startRow, endCol, endRow)
+table.Merge(new McTable.RectRange(0, 0, totalCols - 1, 0)); // объединить всю строку 0
+```
+
+### 22f. Перегрузки Merge
+
+```csharp
+table.Merge(McTable.RectRange range);      // по диапазону
+table.Merge(Cell cellFrom, Cell cellTo);   // по двум угловым ячейкам
+// ❌ Merge(System.Drawing.Rectangle) — в nanoCAD 26 НЕТ такой перегрузки (только в старых версиях)
+```
+
+### 22g. Рамки — рекомендуемый паттерн по ГОСТ
+
+```csharp
+// Шаг 1: все ячейки — тонкие линии (0,25 мм)
+for (int r = 0; r < totalRows; r++)
+    for (int c = 0; c < cols; c++)
+        table.SetCellBorderAbs(BorderTypesEnum.All, r, c, 25);
+
+// Шаг 2: все вертикальные — толстые (0,50 мм)
+for (int r = 0; r < totalRows; r++)
+    for (int c = 0; c < cols; c++)
+        table.SetCellBorderAbs(BorderTypesEnum.Vertical, r, c, 50);
+
+// Шаг 3: шапка (row 1) — все стороны толстые
+for (int c = 0; c < cols; c++)
+    table.SetCellBorderAbs(BorderTypesEnum.All, 1, c, 50);
+
+// Шаг 4: заголовок (row 0) — только нижняя граница толстая, остальные убрать
+for (int c = 0; c < cols; c++)
+{
+    table.SetCellBorderAbs(BorderTypesEnum.Bottom, 0, c, 50);
+    table[0, c].SetBorderLineweight(BorderTypesEnum.ButBottom, -9); // -9 = невидимая
+}
+```
+
+> ⚠️ `SetCellBorderAbs` адресует строки **секции данных** (локальная адресация). При структуре с `InsertSection` это означает что `SetCellBorderAbs(r, c, ...)` применяется к строкам данных, а для строк HeaderFirst нужно использовать `table[row, col].SetBorderLineweight(...)` (глобальный индексатор).
+
+### 22h. Типичная структура таблицы спецификации
+
+```
+InsertSection(HeaderFirst, 0, 2)
+  row 0 — заголовок "Спецификация элементов эстакады" (merged, только нижняя граница 0,50)
+  row 1 — шапка столбцов (все границы 0,50)
+InsertSection(None, 2, dataRows)
+  row 2..N — строки данных (вертикальные 0,50, горизонтальные 0,25)
+```
+
+### 22i. Статья Nanosoft 2013 vs nanoCAD 26
+
+Официальные статьи по таблицам MultiCAD.NET написаны в 2013–2014 году и содержат устаревший API:
+
+| Было в 2013 | В nanoCAD 26 |
+|-------------|--------------|
+| `table.Merge(System.Drawing.Rectangle)` | `table.Merge(McTable.RectRange)` или `table.Merge(Cell, Cell)` |
+| `table[row, col]` как глобальный всегда | Глобальный **только** при использовании `InsertSection` для всех секций |
+| `cell.TextStyleName` | `cell.TextStyle` |
+
+---
+
 ## 20. Диагностика и отладка
 
 ### ⚠️ Критическое требование при отладке СПДС-объектов
@@ -905,7 +1091,7 @@ public void ListParams()
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
-| `AplicationServices` not found | Опечатка | Правильно: `Multicad.AplicationServices` (одна 'p') |
+| `AplicationServices` not found | Namespace не существует в nanoCAD 26 | ❌ Не использовать `using Multicad.AplicationServices` |
 | `IMcDocument` inaccessible | Внутренний интерфейс | Использовать `McDocument` напрямую |
 | `McObjectManager` cannot be instantiated | Статический класс | Не использовать `new`, вызывать напрямую |
 | `McDocument` no `Editor` | Нет такого свойства | Использовать `HostMgd.ApplicationServices.Application` |
@@ -913,6 +1099,8 @@ public void ListParams()
 | `GetDynProperties` not found | Метода нет | Использовать `CustomProperties` / `ObjectProperties` |
 | Объект не распознаётся как параметрический | Неверный тип | Проверять `is McParametricObject`, не `is McCustomBase` |
 | Объекты вставлены, но не позиционированы | Нет установки позиции | Установить `paramObj.Origin = point` |
+| Ручки (grips) остаются на месте шаблона после клонирования | `Origin =` не перемещает геометрию, только метаданные | Использовать `DbEntity.Transform(Matrix3d.Displacement(...))` вместо `Origin =` |
+| Ручки не обновляются у объекта, у которого значение параметра не изменилось | `McProperty.SetValue()` не запускает пересчёт скрипта если значение совпадает | Использовать `Change(ExValue, false)` — запускает пересчёт всегда |
 | CS0021: Cannot apply indexing to `Parameters` | Нет индексатора `p[name]` | Использовать `GetParam(int)` / `SetParam(int, val)` — по индексу |
 | CS1503: cannot convert `string` to `int` в `GetParam` | `GetParam` принимает int, не string | Читать через `McProperty.GetValue(paramObj)` из `DbEntity.ObjectProperties` |
 | CS1503: cannot convert `string` to `int` в `SetParam` | `SetParam` принимает int, не string | Записывать через `McProperty.SetValue(paramObj, val)` или `Change(ExValue, bool)` |
@@ -923,6 +1111,10 @@ public void ListParams()
 | `R0 = 0` при чтении через `GetRedefined()` | `GetRedefined()` — только переопределённые | Дефолтные значения из БД там не появляются; читать через `McProperty.GetValue` |
 | `ExValue` не имеет конструктора с параметрами `(string, double)` | Нет такой перегрузки | `new ExValue()`, затем `ev.Name = name; ev.Value = val;` |
 | Команда не появляется после `NETLOAD` | Отсутствуют флаги регистрации | Обязательно использовать `CommandFlags.NoCheck | CommandFlags.NoPrefix` |
+| McTable: заголовок колонтитула пропал / содержимое попало в неправильную строку | `InsertSection` смешан с `SetRowCountAbs` / `SetCellText` — конфликт адресации | Использовать **только** `InsertSection` для всех секций, `table[row,col]` для всех ячеек |
+| McTable: `table[row,col]` пишет в секцию данных вместо HeaderFirst | `SetRowCountAbs` адресует только данные, сбивает глобальный индексатор | Убрать `SetRowCountAbs`, добавить данные через `InsertSection(SectionTypeEnum.None, ...)` |
+| McTable: `cell.TextStyleName` not found | Свойство называется иначе | Правильно: `cell.TextStyle` (без `Name`) |
+| McTable: `Merge(System.Drawing.Rectangle)` не компилируется | В nanoCAD 26 нет такой перегрузки | Использовать `Merge(new McTable.RectRange(left, top, right, bottom))` |
 
 ---
 
@@ -941,4 +1133,11 @@ public void ListParams()
 - **Алгоритм вставки по уровню земли:** `Ycommon = Ymin - R0`, для каждой вершины `Origin=(Xi, Ycommon, 0)`, `rOtmetkaZemli = Yi - Ycommon`
 - **`MdiActiveDocument` == null** только при автозагрузке через `[NetModules]` до открытия чертежа. При вызове команды пользователем — всегда не null, `?.` не нужен
 - **`CommandFlags.NoCheck | CommandFlags.NoPrefix`** — в MultiCAD.NET это обязательная комбинация для регистрации команды, не просто опциональные флаги поведения
+- **`Origin =` НЕ перемещает физическую геометрию** `McParametricObject`. Присвоение `Origin` обновляет только метаданные точки вставки — ручки (grips) остаются на исходной позиции. Для корректного перемещения всегда использовать `DbEntity.Transform(Matrix3d.Displacement(target - paramObj.Origin))` + `DbObject.Update()`
+- **`Change(ev, false)` vs `McProperty.SetValue()`:** `SetValue` может не запустить пересчёт скрипта если новое значение совпадает со старым. `Change()` всегда запускает пересчёт безусловно — использовать его когда нужна гарантированная реакция скрипта на установку параметра
+- **`using Multicad.AplicationServices`** — в nanoCAD 26 вызывает CS0234. Не писать. Для вывода сообщений использовать `HostMgd.ApplicationServices.Application`
+- **McTable: `table[row, col]` — глобальный индексатор**, но работает правильно только когда все секции созданы через `InsertSection`. При смешанном подходе адресует только секцию данных
+- **McTable: `cell.TextStyle`** — правильное имя свойства. `cell.TextStyleName` не существует
+- **McTable: `SetCellBorderAbs`** адресует строки секции данных (локально). Для строк HeaderFirst использовать `table[row, col].SetBorderLineweight(BorderTypesEnum, int)`
+- **McTable: lineweight `-9`** = невидимая линия (паттерн из официального примера Nanosoft)
 

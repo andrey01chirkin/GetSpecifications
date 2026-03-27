@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
@@ -10,27 +10,34 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+	<Compile Remove="old\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Table2Catalog.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="hostdbmgd">
-      <HintPath>..\..\..\NC_SDK_RU_25.0.6998.4762.8055\include-x64\hostdbmgd.dll</HintPath>
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\hostdbmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="hostmgd">
-      <HintPath>..\..\..\NC_SDK_RU_25.0.6998.4762.8055\include-x64\hostmgd.dll</HintPath>
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\hostmgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="imapimgd">
-      <HintPath>..\..\..\NC_SDK_RU_25.0.6998.4762.8055\include-x64\imapimgd.dll</HintPath>
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\imapimgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MapiBaseTypes">
-      <HintPath>..\..\..\NC_SDK_RU_25.0.6998.4762.8055\include-x64\mapibasetypes.dll</HintPath>
+      <HintPath>D:\NC_SDK_RU_26.0.7228.4926.8429\include-x64\mapibasetypes.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="mapimgd">
-      <HintPath>..\..\..\NC_SDK_RU_25.0.6998.4762.8055\include-x64\mapimgd.dll</HintPath>
+      <HintPath>D:\NC_SDK_RU_26.0.7228.4926.8429\include-x64\mapimgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
-	<Compile Remove="old\**" />
   </ItemGroup>
 
 </Project>

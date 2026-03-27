@@ -1,4 +1,4 @@
-# MultiCAD.NET API — Справочник для nanoCAD 26.0
+    # MultiCAD.NET API — Справочник для nanoCAD 26.0
 
 ## 1. Общая информация
 
@@ -15,6 +15,73 @@
 ### Загрузка плагина в nanoCAD
 - Команда `APPLOAD`, или
 - Меню: Сервис → Приложения → Загрузка .NET приложения
+
+---
+
+## 1b. Два мира API — MultiCAD и HostMgd
+
+В nanoCAD сосуществуют **два слоя API**, которые используются одновременно:
+
+| | MultiCAD (`Multicad.*`) | HostMgd (`HostMgd.*`) |
+|---|---|---|
+| Назначение | Работа с объектами чертежа | Ввод данных и вывод сообщений |
+| Откуда | Родной API nanoCAD | Совместимый слой (похож на AutoCAD API) |
+| Примеры | `McObjectManager`, `McParametricObject` | `Editor.WriteMessage`, `PromptEntityOptions` |
+
+На практике — MultiCAD для работы с объектами, HostMgd для взаимодействия с пользователем:
+
+```csharp
+// MultiCAD — выбор объекта на чертеже
+McObjectId id = McObjectManager.SelectObject("\nВыберите объект: ");
+
+// HostMgd — вывод результата в командную строку
+Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage("\nГотово");
+```
+
+---
+
+## 1c. Архитектурная концепция: две природы объекта
+
+Каждый объект чертежа существует в **двух ипостасях** одновременно.
+
+**Системная часть** (есть у любого объекта — линии, текста, болта):
+- хранение в файле `.dwg`
+- слой, цвет, видимость
+- `Update()`, `Erase()`, `Clone()`
+
+**Бизнес-часть** (уникальна для конкретного типа):
+- логика и параметры объекта
+- `Origin`, `Name`, `Change()`
+- специфично для болта/сваи/символа
+
+Связь между ними — **композиция** (не наследование). Бизнес-часть **держит ссылки** на системную:
+
+```
+McParametricObject  (бизнес-часть — «болт»)
+├── .DbObject  ──→  McDbObject  (системная часть — «паспорт»)
+└── .DbEntity  ──→  McDbEntity  (системная часть — «паспорт с геометрией»)
+```
+
+Это объясняет, почему `DbObject` и `DbEntity` не видны в списке **собственных** свойств `McParametricObject` — они унаследованы от `McEntity` (см. раздел 9a).
+
+**Когда что использовать:**
+
+```csharp
+// Бизнес-часть — что объект из себя представляет:
+paramObj.Origin        // точка вставки
+paramObj.Name          // "Болт M8x60"
+paramObj.Change(...)   // изменить параметр
+
+// Системная часть через DbEntity — как выглядит:
+paramObj.DbEntity.Layer   // слой
+paramObj.DbEntity.Color   // цвет
+paramObj.DbEntity.Transform(matrix)  // трансформация
+
+// Системная часть через DbObject — запись в БД:
+paramObj.DbObject.Update()  // применить изменения
+paramObj.DbObject.Erase()   // удалить
+paramObj.DbObject.Clone()   // клонировать
+```
 
 ---
 
@@ -58,16 +125,18 @@ public void CommandName()
 ## 4. Иерархия ключевых классов
 
 ```
-McObject  (реализует: IMcOverlay, IMcSerializable, IMcStreamSerializable,
-           MarshalByRefObject, IDisposable, Mc3D::I3dQueryable)
+MarshalByRefObject  (.NET)
 │
-├── McEntity  (Multicad.DatabaseServices)
-│   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← параметрические объекты СПДС
-│
-└── McDbObject  (Multicad.DatabaseServices)
-    └── McDbEntity  (Multicad.DatabaseServices)
+└── McObject  (Multicad) : IMcSerializable, IMcStreamSerializable, IDisposable
+      │
+      ├── McEntity  (Multicad.DatabaseServices)
+      │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
+      │   └── McCdEntity    (Multicad.DatabaseServices) : IMcOverlay
+      │       └── McParametricObject (Multicad.Objects) : I3dQueryable  ← СПДС объекты
+      │
+      └── McPropertySource  (Multicad.DatabaseServices)  ← CustomProperties, ObjectProperties
+            └── McDbObject  (Multicad.DatabaseServices) : ICloneable
+                  └── McDbEntity  (Multicad.DatabaseServices)
 ```
 
 ⚠️ **McParametricObject НЕ наследует McCustomBase** — это разные ветки!  
@@ -204,6 +273,29 @@ McObject obj = McObjectManager.GetObject(id);
 
 ---
 
+## 9a. McEntity
+
+**Namespace:** `Multicad.DatabaseServices`  
+Базовый класс для всех «видимых» объектов чертежа.  
+Наследует: `McObject`
+
+⚠️ **Именно здесь определены свойства `DbObject` и `DbEntity`** — поэтому они доступны и у `McCustomBase`, и у `McParametricObject`, хотя в их собственных списках свойств не видны.
+
+| Свойство | Тип | Описание |
+|----------|-----|----------|
+| `DbObject` | `McDbObject` | Ссылка на системную часть (хранение в БД) |
+| `DbEntity` | `McDbEntity` | Ссылка на системную часть с геометрией |
+
+```csharp
+// DbObject и DbEntity определены в McEntity,
+// поэтому работают для ЛЮБОГО наследника:
+paramObj.DbObject.Update()      // McParametricObject → McEntity.DbObject
+customObj.DbEntity.Layer        // McCustomBase → McEntity.DbEntity
+dbPoly.DbEntity.Color           // DbPolyline → McEntity.DbEntity
+```
+
+---
+
 ## 9b. McCdEntity
 
 **Namespace:** `Multicad.DatabaseServices`  
@@ -229,9 +321,9 @@ McObject obj = McObjectManager.GetObject(id);
 | `DirectionOCS` | `Vector3d` | Направление (OCS) |
 | `PlaneVector` | `Vector3d` | Вектор плоскости |
 | `OriginOCS` | `Point3d` | Точка вставки в OCS |
-| `Name` | `string` | Конкретное наименование (напр. "Болт M8x60 ГОСТ 1225") |
-| `CommonName` | `string` | Общее наименование из БД |
-| `ClassName` | `string` | Переменная strTheName из скрипта |
+| `Name` | `string` | Конкретное наименование экземпляра объекта |
+| `CommonName` | `string` | Общее наименование типа из базы |
+| `ClassName` | `string` | Переменная `strTheName` из скрипта |
 | `ClassType` | `string` | Переменная strTheType из скрипта |
 | `ClassSubType` | `string` | Переменная strTheSubType из скрипта |
 | `ElementID` | | ID объекта в базе данных СПДС |
@@ -270,6 +362,14 @@ paramObj.Origin = new Point3d(x, y, z);
 paramObj.DbObject.Update();
 ```
 
+
+### Практическое замечание по `Name` / `CommonName` / `ClassName`
+- `Name` — имя **конкретного экземпляра** объекта.
+- `CommonName` — общее имя **типа** объекта из базы.
+- `ClassName` — техническое имя из скрипта (`strTheName`).
+
+⚠️ В открытой документации нет правила, что для идентификации типа параметрического объекта всегда достаточно только `Name`. Поэтому выбирать, по какому свойству сравнивать объекты, нужно осознанно под конкретную задачу.
+
 ---
 
 ## 11. McObjectManager (статический класс)
@@ -296,6 +396,36 @@ McObjectId id = McObjectManager.SelectObject(prompt);
 
 // Добавление в документ
 McObjectManager.Add2Document(dbObject);
+```
+
+### 11a. ObjectFilter
+
+**Namespace:** `Multicad.DatabaseServices`
+
+`ObjectFilter` задаёт условия поиска для `McObjectManager.SelectObjects(ObjectFilter)`.
+
+**Подтверждённые перегрузки `AddType`:**
+- `AddType()`
+- `AddType(Guid)`
+- `AddType(Type)`
+
+**Практический вывод:**
+- `AddType(...)` фильтрует объекты по **типу / `kindOf`** объекта.
+- `AddType(...)` **не документирован** как фильтр по `Name`, `CommonName`, `ClassName` или параметрам скрипта.
+- Для фильтрации по имени типа или значениям параметров после `SelectObjects(ObjectFilter)` обычно всё равно нужна дополнительная проверка в коде.
+
+Пример по CLR-типу:
+```csharp
+ObjectFilter filter = new ObjectFilter();
+filter.AddType(typeof(DbPolyline));
+McObjectId[] ids = McObjectManager.SelectObjects(filter);
+```
+
+Пример по `TypeID`:
+```csharp
+ObjectFilter filter = new ObjectFilter();
+filter.AddType(McTable.TypeID);
+McObjectId[] ids = McObjectManager.SelectObjects(filter);
 ```
 
 ---
@@ -391,6 +521,37 @@ Matrix3d.Scaling(scale, center)         // матрица масштабиров
 m1 * m2                                 // перемножение матриц
 ```
 
+**Примеры:**
+```csharp
+// Перемещение на 10 единиц по X:
+Vector3d shift = new Vector3d(10, 0, 0);
+Matrix3d moveMatrix = Matrix3d.Displacement(shift);
+
+// Поворот на 90° вокруг оси Z в точке начала координат:
+Matrix3d rotMatrix = Matrix3d.Rotation(
+    Math.PI / 2,      // угол в радианах (90° = π/2, 180° = π, 45° = π/4)
+    Vector3d.ZAxis,   // ось вращения
+    Point3d.Origin    // центр вращения
+);
+
+// Поворот вокруг собственной точки вставки объекта:
+Matrix3d rotAroundSelf = Matrix3d.Rotation(
+    Math.PI / 4,      // 45°
+    Vector3d.ZAxis,
+    paramObj.Origin   // центр = сама точка объекта
+);
+
+// Масштабирование в 2 раза:
+Matrix3d scaleMatrix = Matrix3d.Scaling(2.0, Point3d.Origin);
+
+// Комбинирование — сначала поворот, потом перемещение:
+Matrix3d combined = moveMatrix * rotMatrix;
+
+// Применение к объекту:
+paramObj.DbEntity.Transform(combined); // НЕ TransformBy!
+paramObj.DbObject.Update();
+```
+
 ### Polyline3d
 ```csharp
 // Свойства
@@ -428,7 +589,275 @@ if (obj is DbPolyline dbPoly)
 
 ---
 
-## 18a. McProperty
+## 17a. McTable и таблицы СПДС / спецификации
+
+**Namespace:** `Multicad.Symbols.Tables`  
+Основной класс для табличных объектов — `McTable`.
+
+### Подключение пространства имён
+```csharp
+using Multicad.Symbols.Tables; // McTable, BorderTypesEnum, SectionTypeEnum
+```
+
+### Ключевые свойства `McTable`
+| Свойство | Описание |
+|---|---|
+| `Columns` | Коллекция столбцов таблицы |
+| `Rows` | Коллекция строк / секций таблицы |
+| `DefaultCell` | Оформление ячейки по умолчанию |
+| `Pages` | Параметры страниц / разбиение на страницы |
+| `Title` | Текстовый заголовок таблицы как свойство объекта |
+
+### `RowsCollection`
+Коллекция строк таблицы: `McTable.Rows`.
+
+| Член | Описание |
+|---|---|
+| `Count` | Количество строк |
+| `InsertSection(SectionTypeEnum, int)` | Вставить секцию |
+| `InsertSection(SectionTypeEnum, int, int)` | Вставить секцию с количеством строк |
+| `Add()` / `AddRange()` | Добавить строки |
+| `Delete()` / `DeleteRange()` | Удалить строки |
+| `Move()` / `MoveRange()` | Переместить строки |
+| `UpdateSystemRow()` | Обновить служебную строку |
+
+### Ключевые методы `McTable`
+| Метод | Описание |
+|---|---|
+| `Merge(...)` | Объединить диапазон ячеек |
+| `SetCellText(...)` | Задать текст ячейки |
+| `SetCellTextStyle(...)` | Задать текстовый стиль ячейки |
+| `SetCellTextHeight(...)` | Задать высоту текста |
+| `SetCellTextScale(...)` | Задать горизонтальное сжатие / масштаб текста |
+| `SetCellBorderAbs(...)` | Задать границы ячейки |
+| `SetRowHeight(...)` / `Rows[i].Height` | Задать высоту строки |
+| `SetColumnWidth(...)` / `Columns[i].Width` | Задать ширину столбца |
+| `GetRowCountAbs()` | Получить абсолютное количество строк |
+| `GetSectionType(row)` | Получить тип секции для строки |
+| `GetSectionPos(row)` | Получить позицию строки в секции |
+
+### `SectionTypeEnum`
+Строки таблицы группируются в разделы.
+
+| Значение | Назначение |
+|---|---|
+| `Header` | Верхний колонтитул для каждой страницы |
+| `HeaderFirst` | Верхний колонтитул только для первой страницы |
+| `HeaderMiddle` | Верхний колонтитул для всех страниц, кроме первой и последней |
+| `HeaderLast` | Верхний колонтитул только для последней страницы |
+| `None` | Обычные данные |
+| `ReportHeader` | Заголовок отчёта |
+| `ReportSource` | Шаблон отчёта |
+| `ReportFooter` | Итог отчёта |
+| `Footer` | Нижний колонтитул для каждой страницы |
+| `FooterFirst` | Нижний колонтитул только для первой страницы |
+| `FooterMiddle` | Нижний колонтитул для всех страниц, кроме первой и последней |
+| `FooterLast` | Нижний колонтитул только для последней страницы |
+| `ReportData` | Строки отчёта |
+
+### Практическое наблюдение по секциям `McTable`
+На практике секции могут иметь **служебные строки**. При работе с `InsertSection(...)` нельзя автоматически считать, что данные начинаются ровно с `rowIndex`.
+
+Наблюдаемое поведение:
+- `Rows.InsertSection(SectionTypeEnum.HeaderFirst, 0, 2)` → рабочие строки заголовка обычно `0` и `1`
+- `Rows.InsertSection(SectionTypeEnum.None, 2, count)` → строка `2` может выступать как служебная строка секции, а первая рабочая строка данных — начинаться с `3`
+
+⚠️ Документация подтверждает сами секции и методы `InsertSection(...)`, `GetSectionType(...)`, `GetSectionPos(...)`, но не раскрывает текстом полную семантику служебных строк. Поэтому индексацию секций нужно проверять по фактическому поведению SDK.
+
+### `McTable.Title` и колонтитулы
+`McTable.Title` — это свойство таблицы, но оно **не заменяет** секции верхних колонтитулов (`Header`, `HeaderFirst`, `HeaderMiddle`, `HeaderLast`).
+
+Если нужен настоящий верхний колонтитул таблицы, его следует строить через `Rows.InsertSection(...)` и ячейки секции `Header*`, а не полагаться только на `Title`.
+
+### `RectRange` — диапазон для `Merge(...)`
+`McTable.RectRange` — структура прямоугольной области таблицы для диапазонов и объединённых ячеек.
+
+**Подтверждённая структура:**
+- поля: `Left`, `Top`, `Right`, `Bottom`
+- конструктор: `RectRange(int left, int top, int right, int bottom)`
+
+Пример:
+```csharp
+McTable.RectRange range = new McTable.RectRange(0, 0, 5, 0);
+table.Merge(range);
+```
+
+Практический вывод: если конструктор `RectRange(int, int, int, int)` доступен, создавать диапазон можно **напрямую**, без рефлексии.
+
+### `BorderTypesEnum`
+Границы ячеек задаются через `[Flags] enum BorderTypesEnum`.
+
+**Часто используемые значения:**
+- `Left`, `Top`, `Right`, `Bottom`
+- `Horizontal`, `Vertical`
+- `ButLeft`, `ButTop`, `ButRight`, `ButBottom`
+- `All`
+
+### Практическое замечание по `SetCellBorderAbs(..., par2)`
+Параметр `par2` в открытой документации **не расшифрован**.
+
+Подтверждено практикой:
+- `BorderTypesEnum.ButBottom` можно использовать, чтобы снять все границы кроме нижней
+- значение `-9` используется как специальное значение для снятия указанных границ
+
+⚠️ Формальная единица измерения `par2` для обычных весов линий в открытой документации не описана.
+
+---
+
+
+## 17b. Формулы и форматированный текст в ячейках `McTable`
+
+### Формулы в `SetCellText(...)`
+
+Для `McTable` практикой подтверждено, что `SetCellText(...)` может принимать не только обычный текст, но и **формулу ячейки таблицы**, если строка начинается со знака `=`.
+
+Это особенно важно для случаев, когда в ячейке нужно получить:
+- дробь;
+- подчёркнутый текст;
+- верхний индекс;
+- нижний индекс;
+- комбинацию нескольких форматированных фрагментов.
+
+Пример:
+
+```csharp
+table.SetCellText(row, col, "=fmtUnderline("Текст")");
+```
+
+### Практический вывод
+
+- `SetCellText(..., string)` не обязан интерпретировать **MTEXT-синтаксис** вроде `\Sверх/низ;` как дробь.
+- Для таблиц nanoCAD правильнее использовать **язык формул таблицы**, а не MTEXT-коды.
+- Если нужно форматирование внутри ячейки `McTable`, сначала стоит пробовать именно формулу вида `=...`.
+
+### Форматирующие функции редактора формул таблицы
+
+| Функция | Назначение |
+|---|---|
+| `fmtDiv(upper; lower; Optional line=True)` | Создание дроби |
+| `fmtText(arg1; ...)` | Объединение форматированных строк |
+| `fmtUnderline(arg)` | Подчёркнутый текст |
+| `fmtSub(arg)` | Нижний индекс |
+| `fmtSuper(arg)` | Верхний индекс |
+| `fmtRaw(arg)` | Текст без форматирования |
+
+### Дробь в ячейке таблицы
+
+Для построения дроби в столбце таблицы следует использовать `fmtDiv(...)`, а не MTEXT-последовательности.
+
+Пример:
+
+```csharp
+table.SetCellText(
+    row,
+    col,
+    "=fmtDiv("25x580x580 ГОСТ 19903-2015"; "С245-4 ГОСТ 27772-2021"; True)");
+```
+
+Пример объединения обычного текста и дроби:
+
+```csharp
+table.SetCellText(
+    row,
+    col,
+    "=fmtText("Лист "; fmtDiv("25x580x580 ГОСТ 19903-2015"; "С245-4 ГОСТ 27772-2021"; True))");
+```
+
+### Подчёркивание текста в ячейке
+
+Если нужно именно **подчеркнуть текст**, а не рисовать нижнюю границу ячейки, следует использовать `fmtUnderline(...)`.
+
+Пример:
+
+```csharp
+table.SetCellText(row, col, "=fmtUnderline("Стойка типа С-1")");
+```
+
+Это отличается от настройки рамки ячейки:
+- `fmtUnderline(...)` подчёркивает сам текст;
+- `SetCellBorderAbs(...)` управляет линиями границ ячейки.
+
+### Разделители аргументов в формулах таблицы
+
+Практически подтверждено, что для формул таблицы nanoCAD корректно работает разделитель аргументов **`;`**.
+
+Пример:
+
+```csharp
+"=fmtText("Лист "; fmtDiv("верх"; "низ"; True))"
+```
+
+Если использовать MTEXT-форматирование или неподходящий синтаксис, ячейка может показать сырой текст вместо форматированного результата.
+
+### Экранирование текста для формул
+
+Если формула собирается программно, текстовые литералы внутри неё нужно экранировать как минимум по двойным кавычкам.
+
+Минимальный helper:
+
+```csharp
+private string EscapeFormulaText(string s)
+{
+    if (string.IsNullOrEmpty(s))
+        return "";
+
+    return s.Replace(""", """");
+}
+```
+
+Пример сборки формулы:
+
+```csharp
+string top = EscapeFormulaText("25x580x580 ГОСТ 19903-2015");
+string bottom = EscapeFormulaText("С245-4 ГОСТ 27772-2021");
+
+string expr =
+    "=fmtText("Лист "; fmtDiv("" + top + ""; "" + bottom + ""; True))";
+
+table.SetCellText(row, col, expr);
+```
+
+### Практическое замечание по `McsString`
+
+У `McTable` есть перегрузка `SetCellText(int row, int col, McsString str)`, однако для типовых задач форматирования ячеек таблицы может быть достаточно и строковой перегрузки `SetCellText(..., string)`, если передавать **формулу таблицы** вида `=fmt...`.
+
+То есть при необходимости дроби, подчёркивания, верхних/нижних индексов сначала имеет смысл пробовать именно **формулы таблицы**, а не искать MTEXT-синтаксис или сразу переходить к `McsString`.
+
+### Важное различие: текст таблицы ≠ MTEXT
+
+Не следует автоматически переносить приёмы форматирования `MText` в `McTable`.
+
+Практический вывод:
+- MTEXT-коды вида `\S...\;` могут отображаться в ячейке как обычный сырой текст;
+- формулы таблицы `=fmtDiv(...)`, `=fmtUnderline(...)`, `=fmtText(...)` могут корректно интерпретироваться таблицей.
+
+Поэтому для форматированного содержимого ячеек `McTable` предпочтителен именно **язык формул таблицы nanoCAD**.
+
+### Короткие эталонные примеры
+
+**Подчёркнутый текст:**
+
+```csharp
+table.SetCellText(row, col, "=fmtUnderline("Стойка типа С-2")");
+```
+
+**Дробь:**
+
+```csharp
+table.SetCellText(row, col,
+    "=fmtDiv("25x580x580 ГОСТ 19903-2015"; "С245-4 ГОСТ 27772-2021"; True)");
+```
+
+**Текст + дробь:**
+
+```csharp
+table.SetCellText(row, col,
+    "=fmtText("Лист "; fmtDiv("25x580x580 ГОСТ 19903-2015"; "С245-4 ГОСТ 27772-2021"; True))");
+```
+
+---
+
+## 19a. McProperty
 
 **Namespace:** `Multicad`  
 **Наследует:** `PropertyDescriptor` (стандартный .NET) + `IMcProperty`  
@@ -472,7 +901,7 @@ foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
 
 ---
 
-## 18b. ExValue
+## 19b. ExValue
 
 **Namespace:** `Multicad`  
 **Implements:** `IDisposable`  
@@ -506,7 +935,7 @@ paramObj.Change(ev, false);  // false = без каскадного пересч
 
 ---
 
-## 18c. McDbObject.Parameters
+## 19c. McDbObject.Parameters
 
 **Namespace:** `Multicad.DatabaseServices`  
 **Implements:** `IDisposable`  
@@ -530,17 +959,22 @@ paramObj.Change(ev, false);  // false = без каскадного пересч
 
 ---
 
+---
+
 ## 18. Паттерны работы с объектами
 
 ### ⚠️ ВАЖНО: McParametricObject ≠ McCustomBase
 Это **разные ветки** иерархии! `is McCustomBase` для параметрического объекта вернёт `false`.
 
 ```
-McObject
+McObject : IMcSerializable, IMcStreamSerializable, IDisposable
 ├── McEntity
 │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← СПДС объекты
+│   └── McCdEntity : IMcOverlay (Multicad.DatabaseServices)
+│       └── McParametricObject : I3dQueryable (Multicad.Objects) ← СПДС объекты
+└── McPropertySource
+    └── McDbObject : ICloneable
+        └── McDbEntity
 ```
 
 ### Выбор и проверка типа
@@ -724,7 +1158,61 @@ namespace MyPlugin
 
 ---
 
-## 20. Частые ошибки и их решения
+## 20. Диагностика и отладка
+
+### ⚠️ Критическое требование при отладке СПДС-объектов
+
+**При отладке плагина обязательно запускать именно модуль СПДС**, а не платформу nanoCAD или другие вертикалки. Иначе при выборе СПДС-объекта `GetObject()` вернёт объект другого типа, и `is McParametricObject` всегда будет `false`.
+
+### Узнать реальный тип объекта
+
+```csharp
+McObject obj = id.GetObject();
+// Показывает полное имя класса выбранного объекта:
+string typeName = obj.GetType().FullName;
+Application.DocumentManager.MdiActiveDocument
+    ?.Editor.WriteMessage($"\nТип объекта: {typeName}");
+```
+
+### Команда ListParams — просмотр всех параметров объекта
+
+Незаменима при первом знакомстве с объектом — показывает реальные имена параметров и их текущие значения:
+
+```csharp
+[CommandMethod("ListParams", CommandFlags.NoCheck | CommandFlags.NoPrefix)]
+public void ListParams()
+{
+    var editor = Application.DocumentManager.MdiActiveDocument?.Editor;
+
+    McObjectId id = McObjectManager.SelectObject("\nВыберите СПДС-объект: ");
+    if (id.IsNull) return;
+
+    McObject obj = id.GetObject();
+    editor?.WriteMessage($"\nТип: {obj.GetType().FullName}");
+
+    if (!(obj is McParametricObject paramObj))
+    {
+        editor?.WriteMessage("\nЭто не McParametricObject");
+        return;
+    }
+
+    editor?.WriteMessage($"\nClassName: {paramObj.ClassName}");
+    editor?.WriteMessage($"\nName: {paramObj.Name}");
+    editor?.WriteMessage($"\nOrigin: {paramObj.Origin}");
+    editor?.WriteMessage("\n--- Параметры скрипта (ObjectProperties) ---");
+
+    foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
+    {
+        object val = prop.GetValue(paramObj);
+        editor?.WriteMessage(
+            $"\n  [{prop.PropertyType.Name}] {prop.Name} = {val}");
+    }
+}
+```
+
+---
+
+## 21. Частые ошибки и их решения
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
@@ -746,6 +1234,8 @@ namespace MyPlugin
 | `R0 = 0` при чтении через `GetRedefined()` | `GetRedefined()` — только переопределённые | Дефолтные значения из БД там не появляются; читать через `McProperty.GetValue` |
 | `ExValue` не имеет конструктора с параметрами `(string, double)` | Нет такой перегрузки | `new ExValue()`, затем `ev.Name = name; ev.Value = val;` |
 | Команда не появляется после `NETLOAD` | Отсутствуют флаги регистрации | Обязательно использовать `CommandFlags.NoCheck | CommandFlags.NoPrefix` |
+| В `McTable` пропадает первая строка данных, а внизу появляется пустая строка | Заполнение секции начато со служебной строки секции | После `Rows.InsertSection(...)` не предполагать автоматически первую рабочую строку; проверять фактическую индексацию секции |
+| `McTable.Title` не создаёт нужный верхний колонтитул | `Title` — это свойство таблицы, а не секция `Header*` | Для настоящего колонтитула использовать `Rows.InsertSection(...)` и ячейки секции `Header`, `HeaderFirst`, `HeaderMiddle` или `HeaderLast` |
 
 ---
 
@@ -760,8 +1250,199 @@ namespace MyPlugin
 - **`McProperty`** наследует стандартный .NET `PropertyDescriptor`. Ключевые методы: `GetValue(component)` и `SetValue(component, value)`, где `component` = сам `McParametricObject`
 - **`GetParamLocalName(name)`** — метод McParametricObject для проверки существования параметра у данного типа объекта. Возвращает `null` если параметра нет. Принимает `string` **без `ref`**
 - **`ExValue`** — контейнер имя+значение (namespace `Multicad`). Используется в `Change(ev, false)`. Конструктор без параметров, затем `ev.Name` и `ev.Value`
+- **Для технических строковых идентификаторов** (имена классов, системные имена параметров и т.п.) в .NET предпочтительны явные сравнения через `StringComparison.Ordinal` / `StringComparer.Ordinal`
 - **`GetRedefined()`** возвращает `List<int>` — только ID **переопределённых** параметров. Значения из БД по умолчанию там не появляются → не подходит для чтения шаблонных значений
 - **Алгоритм вставки по уровню земли:** `Ycommon = Ymin - R0`, для каждой вершины `Origin=(Xi, Ycommon, 0)`, `rOtmetkaZemli = Yi - Ycommon`
 - **`MdiActiveDocument` == null** только при автозагрузке через `[NetModules]` до открытия чертежа. При вызове команды пользователем — всегда не null, `?.` не нужен
 - **`CommandFlags.NoCheck | CommandFlags.NoPrefix`** — в MultiCAD.NET это обязательная комбинация для регистрации команды, не просто опциональные флаги поведения
+- **`McTable.Title`** не заменяет секции колонтитулов `Header*` / `Footer*`. Если нужен настоящий колонтитул, использовать `Rows.InsertSection(...)`
+- **Секции `McTable` могут иметь служебные строки.** После `Rows.InsertSection(...)` первую рабочую строку секции нужно проверять по фактическому поведению SDK
+- **`McTable.RectRange`** имеет прямой конструктор `new McTable.RectRange(left, top, right, bottom)` — рефлексия для создания диапазона не нужна
+- **`ObjectFilter.AddType(...)`** фильтрует по типу / `kindOf`, а не по `Name`, `CommonName`, `ClassName` или значениям параметров объекта
 
+
+
+---
+
+## 21a. Короткие эталонные сниппеты
+
+Ниже — не проектный код, а **минимальные шаблоны**, которые помогают быстрее понять типовые паттерны MultiCAD/.NET и быстро собрать рабочую заготовку.
+
+### 21a.1. Минимальный шаблон `McTable` с `HeaderFirst + None`
+
+Показывает базовую схему секций таблицы:
+- `HeaderFirst` — верхний колонтитул только первой страницы;
+- `None` — обычные строки данных.
+
+```csharp
+using Multicad.Symbols.Tables;
+
+McTable table = new McTable();
+
+const int cols = 3;
+table.Columns.AddRange(0, cols);
+
+table.Columns[0].Width = 20;
+table.Columns[1].Width = 60;
+table.Columns[2].Width = 20;
+
+// 0..1 = HeaderFirst
+// 2    = служебная строка секции None
+// 3..  = реальные строки данных
+
+table.Rows.InsertSection(SectionTypeEnum.HeaderFirst, 0, 2);
+table.Rows.InsertSection(SectionTypeEnum.None, 2, 2);
+
+// Заголовок верхнего колонтитула
+var rr = new McTable.RectRange(0, 0, cols - 1, 0);
+table.Merge(rr);
+table.SetCellText(0, 0, "Заголовок таблицы");
+
+// Шапка
+
+table.SetCellText(1, 0, "Поз.");
+table.SetCellText(1, 1, "Наименование");
+table.SetCellText(1, 2, "Кол.");
+
+// Данные начинаются с 3-й строки
+
+table.SetCellText(3, 0, "1");
+table.SetCellText(3, 1, "Изделие А");
+table.SetCellText(3, 2, "2");
+
+table.SetCellText(4, 0, "2");
+table.SetCellText(4, 1, "Изделие Б");
+table.SetCellText(4, 2, "5");
+```
+
+> Практическое замечание: после `Rows.InsertSection(...)` у секции может быть служебная строка. Первую рабочую строку полезно проверять на практике, особенно для `SectionTypeEnum.None`.
+
+### 21a.2. Чтение `ObjectProperties` одним проходом
+
+Это рекомендуемый шаблон, когда нужно за один проход прочитать несколько параметров объекта из `DbEntity.ObjectProperties`.
+
+```csharp
+using Multicad.DatabaseServices;
+using Multicad.Objects;
+
+string impl = "";
+string tip = "";
+double len = 0.0;
+
+foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
+{
+    object? val = prop.GetValue(paramObj);
+
+    switch (prop.Name)
+    {
+        case "strImplementation":
+            impl = val?.ToString() ?? "";
+            break;
+
+        case "strTipStoiki":
+            tip = val?.ToString() ?? "";
+            break;
+
+        case "rDlinaStoikiM":
+            if (val is double d)
+                len = d;
+            else if (double.TryParse(
+                val?.ToString(),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out double parsed))
+                len = parsed;
+            break;
+    }
+}
+```
+
+Плюс шаблона:
+- не нужно 3–4 раза обходить одну и ту же коллекцию `ObjectProperties`;
+- код остаётся простым и легко расширяется через `switch`.
+
+### 21a.3. Шаблон создания / проверки текстового стиля
+
+Минимальный пример создания текстового стиля в активном чертеже через таблицу стилей текста.
+
+```csharp
+using HostMgd.ApplicationServices;
+using Teigha.DatabaseServices;
+
+void EnsureTextStyleExists(string styleName, string fontFileName)
+{
+    var doc = Application.DocumentManager.MdiActiveDocument;
+    var db = doc.Database;
+
+    using var tr = db.TransactionManager.StartTransaction();
+
+    var textStyleTable =
+        (TextStyleTable)tr.GetObject(db.TextStyleTableId, OpenMode.ForRead);
+
+    if (!textStyleTable.Has(styleName))
+    {
+        textStyleTable.UpgradeOpen();
+
+        var ts = new TextStyleTableRecord
+        {
+            Name = styleName,
+            FileName = fontFileName,
+            TextSize = 0.0
+        };
+
+        textStyleTable.Add(ts);
+        tr.AddNewlyCreatedDBObject(ts, true);
+    }
+
+    tr.Commit();
+}
+```
+
+Типовой сценарий использования:
+- стиль текста должен гарантированно существовать перед вставкой таблицы или текста;
+- размер текста удобнее задавать уже на уровне объекта/ячейки, а не жёстко в стиле.
+
+### 21a.4. Шаблон диагностики выбранного объекта
+
+Минимальный шаблон, который помогает быстро понять, что именно выбрал пользователь и какие параметры реально есть у объекта.
+
+```csharp
+using Multicad;
+using Multicad.DatabaseServices;
+using Multicad.Objects;
+using HostMgd.ApplicationServices;
+
+void DiagnoseSelectedObject()
+{
+    var ed = Application.DocumentManager.MdiActiveDocument.Editor;
+
+    McObjectId id = McObjectManager.SelectObject("
+Выберите объект: ");
+    if (id.IsNull) return;
+
+    McObject obj = id.GetObject();
+    ed.WriteMessage($"
+GetType().FullName = {obj.GetType().FullName}");
+
+    if (obj is McParametricObject p)
+    {
+        ed.WriteMessage($"
+ClassName  = {p.ClassName}");
+        ed.WriteMessage($"
+CommonName = {p.CommonName}");
+        ed.WriteMessage($"
+Name       = {p.Name}");
+        ed.WriteMessage("
+--- ObjectProperties ---");
+
+        foreach (McProperty prop in p.DbEntity.ObjectProperties)
+            ed.WriteMessage($"
+  [{prop.PropertyType.Name}] {prop.Name} = {prop.GetValue(p)}");
+    }
+}
+```
+
+Этот шаблон особенно полезен, когда:
+- объект не распознаётся ожидаемым образом;
+- непонятно, где именно лежат нужные параметры;
+- нужно быстро сопоставить `Name`, `CommonName`, `ClassName` и содержимое `ObjectProperties`.

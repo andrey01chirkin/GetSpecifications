@@ -18,6 +18,73 @@
 
 ---
 
+## 1b. Два мира API — MultiCAD и HostMgd
+
+В nanoCAD сосуществуют **два слоя API**, которые используются одновременно:
+
+| | MultiCAD (`Multicad.*`) | HostMgd (`HostMgd.*`) |
+|---|---|---|
+| Назначение | Работа с объектами чертежа | Ввод данных и вывод сообщений |
+| Откуда | Родной API nanoCAD | Совместимый слой (похож на AutoCAD API) |
+| Примеры | `McObjectManager`, `McParametricObject` | `Editor.WriteMessage`, `PromptEntityOptions` |
+
+На практике — MultiCAD для работы с объектами, HostMgd для взаимодействия с пользователем:
+
+```csharp
+// MultiCAD — выбор объекта на чертеже
+McObjectId id = McObjectManager.SelectObject("\nВыберите объект: ");
+
+// HostMgd — вывод результата в командную строку
+Application.DocumentManager.MdiActiveDocument?.Editor.WriteMessage("\nГотово");
+```
+
+---
+
+## 1c. Архитектурная концепция: две природы объекта
+
+Каждый объект чертежа существует в **двух ипостасях** одновременно.
+
+**Системная часть** (есть у любого объекта — линии, текста, болта):
+- хранение в файле `.dwg`
+- слой, цвет, видимость
+- `Update()`, `Erase()`, `Clone()`
+
+**Бизнес-часть** (уникальна для конкретного типа):
+- логика и параметры объекта
+- `Origin`, `Name`, `Change()`
+- специфично для болта/сваи/символа
+
+Связь между ними — **композиция** (не наследование). Бизнес-часть **держит ссылки** на системную:
+
+```
+McParametricObject  (бизнес-часть — «болт»)
+├── .DbObject  ──→  McDbObject  (системная часть — «паспорт»)
+└── .DbEntity  ──→  McDbEntity  (системная часть — «паспорт с геометрией»)
+```
+
+Это объясняет, почему `DbObject` и `DbEntity` не видны в списке **собственных** свойств `McParametricObject` — они унаследованы от `McEntity` (см. раздел 9a).
+
+**Когда что использовать:**
+
+```csharp
+// Бизнес-часть — что объект из себя представляет:
+paramObj.Origin        // точка вставки
+paramObj.Name          // "Болт M8x60"
+paramObj.Change(...)   // изменить параметр
+
+// Системная часть через DbEntity — как выглядит:
+paramObj.DbEntity.Layer   // слой
+paramObj.DbEntity.Color   // цвет
+paramObj.DbEntity.Transform(matrix)  // трансформация
+
+// Системная часть через DbObject — запись в БД:
+paramObj.DbObject.Update()  // применить изменения
+paramObj.DbObject.Erase()   // удалить
+paramObj.DbObject.Clone()   // клонировать
+```
+
+---
+
 ## 2. Пространства имён
 
 ```csharp
@@ -47,24 +114,29 @@ public void CommandName()
 ```
 
 **CommandFlags:**
-- `NoCheck` — не проверять наличие активного документа
-- `NoPrefix` — имя команды без префикса namespace
+- `NoCheck | NoPrefix` — **обязательная комбинация** для регистрации команды в MultiCAD.NET. Без неё команда не появляется в nanoCAD после `NETLOAD`
+- `NoCheck` — в AutoCAD.NET означает «не проверять активный документ»; в MultiCAD.NET является частью механизма регистрации команды
+- `NoPrefix` — имя команды без префикса namespace (иначе команда регистрируется как `NAMESPACE_COMMANDNAME`)
+
+> ⚠️ `MdiActiveDocument` равен `null` только при автозагрузке сборки через секцию `[NetModules]` (до открытия чертежа). При вызове команды пользователем вручную — всегда не `null`.
 
 ---
 
 ## 4. Иерархия ключевых классов
 
 ```
-McObject  (реализует: IMcOverlay, IMcSerializable, IMcStreamSerializable,
-           MarshalByRefObject, IDisposable, Mc3D::I3dQueryable)
+MarshalByRefObject  (.NET)
 │
-├── McEntity  (Multicad.DatabaseServices)
-│   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← параметрические объекты СПДС
-│
-└── McDbObject  (Multicad.DatabaseServices)
-    └── McDbEntity  (Multicad.DatabaseServices)
+└── McObject  (Multicad) : IMcSerializable, IMcStreamSerializable, IDisposable
+      │
+      ├── McEntity  (Multicad.DatabaseServices)
+      │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты разработчика
+      │   └── McCdEntity    (Multicad.DatabaseServices) : IMcOverlay
+      │       └── McParametricObject (Multicad.Objects) : I3dQueryable  ← СПДС объекты
+      │
+      └── McPropertySource  (Multicad.DatabaseServices)  ← CustomProperties, ObjectProperties
+            └── McDbObject  (Multicad.DatabaseServices) : ICloneable
+                  └── McDbEntity  (Multicad.DatabaseServices)
 ```
 
 ⚠️ **McParametricObject НЕ наследует McCustomBase** — это разные ветки!  
@@ -198,6 +270,29 @@ McObject obj = McObjectManager.GetObject(id);
 | `PlaceObject()` | Разместить объект |
 | `OnDraw(...)` | Переопределить для отрисовки |
 | `OnTransform(tfm)` | Вызывается при трансформации |
+
+---
+
+## 9a. McEntity
+
+**Namespace:** `Multicad.DatabaseServices`  
+Базовый класс для всех «видимых» объектов чертежа.  
+Наследует: `McObject`
+
+⚠️ **Именно здесь определены свойства `DbObject` и `DbEntity`** — поэтому они доступны и у `McCustomBase`, и у `McParametricObject`, хотя в их собственных списках свойств не видны.
+
+| Свойство | Тип | Описание |
+|----------|-----|----------|
+| `DbObject` | `McDbObject` | Ссылка на системную часть (хранение в БД) |
+| `DbEntity` | `McDbEntity` | Ссылка на системную часть с геометрией |
+
+```csharp
+// DbObject и DbEntity определены в McEntity,
+// поэтому работают для ЛЮБОГО наследника:
+paramObj.DbObject.Update()      // McParametricObject → McEntity.DbObject
+customObj.DbEntity.Layer        // McCustomBase → McEntity.DbEntity
+dbPoly.DbEntity.Color           // DbPolyline → McEntity.DbEntity
+```
 
 ---
 
@@ -388,6 +483,37 @@ Matrix3d.Scaling(scale, center)         // матрица масштабиров
 m1 * m2                                 // перемножение матриц
 ```
 
+**Примеры:**
+```csharp
+// Перемещение на 10 единиц по X:
+Vector3d shift = new Vector3d(10, 0, 0);
+Matrix3d moveMatrix = Matrix3d.Displacement(shift);
+
+// Поворот на 90° вокруг оси Z в точке начала координат:
+Matrix3d rotMatrix = Matrix3d.Rotation(
+    Math.PI / 2,      // угол в радианах (90° = π/2, 180° = π, 45° = π/4)
+    Vector3d.ZAxis,   // ось вращения
+    Point3d.Origin    // центр вращения
+);
+
+// Поворот вокруг собственной точки вставки объекта:
+Matrix3d rotAroundSelf = Matrix3d.Rotation(
+    Math.PI / 4,      // 45°
+    Vector3d.ZAxis,
+    paramObj.Origin   // центр = сама точка объекта
+);
+
+// Масштабирование в 2 раза:
+Matrix3d scaleMatrix = Matrix3d.Scaling(2.0, Point3d.Origin);
+
+// Комбинирование — сначала поворот, потом перемещение:
+Matrix3d combined = moveMatrix * rotMatrix;
+
+// Применение к объекту:
+paramObj.DbEntity.Transform(combined); // НЕ TransformBy!
+paramObj.DbObject.Update();
+```
+
 ### Polyline3d
 ```csharp
 // Свойства
@@ -425,7 +551,7 @@ if (obj is DbPolyline dbPoly)
 
 ---
 
-## 18a. McProperty
+## 19a. McProperty
 
 **Namespace:** `Multicad`  
 **Наследует:** `PropertyDescriptor` (стандартный .NET) + `IMcProperty`  
@@ -465,11 +591,12 @@ foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
 ```
 
 ⚠️ **`component` в `GetValue`/`SetValue` = сам `McParametricObject`**, не `DbObject` и не `DbEntity`.  
-⚠️ **`DbObject.Params`** содержит настройки приложения (строка БД, версия и т.д.) — **не параметры скрипта**.
+⚠️ **`DbObject.Params`** содержит настройки приложения (строка БД, версия и т.д.) — **не параметры скрипта**.  
+⚠️ **`SetValue` vs `Change()`:** если новое значение совпадает со старым, `SetValue` может **не запустить пересчёт скрипта** — ручки объекта не обновятся. `Change(ExValue, false)` запускает пересчёт **всегда**, независимо от того, изменилось ли значение. Предпочитайте `Change()` когда объект уже перемещён через `Transform`.
 
 ---
 
-## 18b. ExValue
+## 19b. ExValue
 
 **Namespace:** `Multicad`  
 **Implements:** `IDisposable`  
@@ -503,7 +630,7 @@ paramObj.Change(ev, false);  // false = без каскадного пересч
 
 ---
 
-## 18c. McDbObject.Parameters
+## 19c. McDbObject.Parameters
 
 **Namespace:** `Multicad.DatabaseServices`  
 **Implements:** `IDisposable`  
@@ -527,17 +654,22 @@ paramObj.Change(ev, false);  // false = без каскадного пересч
 
 ---
 
+---
+
 ## 18. Паттерны работы с объектами
 
 ### ⚠️ ВАЖНО: McParametricObject ≠ McCustomBase
 Это **разные ветки** иерархии! `is McCustomBase` для параметрического объекта вернёт `false`.
 
 ```
-McObject
+McObject : IMcSerializable, IMcStreamSerializable, IDisposable
 ├── McEntity
 │   ├── McCustomBase  (Multicad.CustomObjectBase) ← кастомные объекты
-│   └── McCdEntity    (Multicad.DatabaseServices)
-│       └── McParametricObject (Multicad.Objects) ← СПДС объекты
+│   └── McCdEntity : IMcOverlay (Multicad.DatabaseServices)
+│       └── McParametricObject : I3dQueryable (Multicad.Objects) ← СПДС объекты
+└── McPropertySource
+    └── McDbObject : ICloneable
+        └── McDbEntity
 ```
 
 ### Выбор и проверка типа
@@ -576,15 +708,22 @@ McParametricObject CloneParamObj(McParametricObject source)
 ```
 
 ### Позиционирование объекта
+
+> ⚠️ **ВАЖНО: для `McParametricObject` всегда использовать `Transform`, а не `Origin =`!**  
+> `Origin =` обновляет только метаданные точки вставки, но **не перемещает физическую геометрию объекта**.  
+> В результате ручки (grips) остаются на исходной позиции (месте шаблона), а сам объект визуально не переезжает корректно.  
+> `DbEntity.Transform()` перемещает весь объект целиком — геометрию, ручки и метаданные.
+
 ```csharp
-// Для McParametricObject — через свойство Origin:
-paramObj.Origin = targetPoint;
+// ✅ ПРАВИЛЬНО — для McParametricObject (и для McCustomBase):
+Vector3d displacement = targetPoint - paramObj.Origin;
+Matrix3d matrix = Matrix3d.Displacement(displacement);
+paramObj.DbEntity.Transform(matrix);  // НЕ TransformBy!
 paramObj.DbObject.Update();
 
-// Для McCustomBase (общий случай) — через Transform:
-Vector3d displacement = targetPoint - Point3d.Origin;
-Matrix3d matrix = Matrix3d.Displacement(displacement);
-customBase.DbEntity.Transform(matrix);  // НЕ TransformBy!
+// ❌ НЕПРАВИЛЬНО — ручки остаются на месте шаблона:
+// paramObj.Origin = targetPoint;
+// paramObj.DbObject.Update();
 ```
 
 ### Проверка и чтение параметра скрипта СПДС
@@ -721,7 +860,61 @@ namespace MyPlugin
 
 ---
 
-## 20. Частые ошибки и их решения
+## 20. Диагностика и отладка
+
+### ⚠️ Критическое требование при отладке СПДС-объектов
+
+**При отладке плагина обязательно запускать именно модуль СПДС**, а не платформу nanoCAD или другие вертикалки. Иначе при выборе СПДС-объекта `GetObject()` вернёт объект другого типа, и `is McParametricObject` всегда будет `false`.
+
+### Узнать реальный тип объекта
+
+```csharp
+McObject obj = id.GetObject();
+// Показывает полное имя класса выбранного объекта:
+string typeName = obj.GetType().FullName;
+Application.DocumentManager.MdiActiveDocument
+    ?.Editor.WriteMessage($"\nТип объекта: {typeName}");
+```
+
+### Команда ListParams — просмотр всех параметров объекта
+
+Незаменима при первом знакомстве с объектом — показывает реальные имена параметров и их текущие значения:
+
+```csharp
+[CommandMethod("ListParams", CommandFlags.NoCheck | CommandFlags.NoPrefix)]
+public void ListParams()
+{
+    var editor = Application.DocumentManager.MdiActiveDocument?.Editor;
+
+    McObjectId id = McObjectManager.SelectObject("\nВыберите СПДС-объект: ");
+    if (id.IsNull) return;
+
+    McObject obj = id.GetObject();
+    editor?.WriteMessage($"\nТип: {obj.GetType().FullName}");
+
+    if (!(obj is McParametricObject paramObj))
+    {
+        editor?.WriteMessage("\nЭто не McParametricObject");
+        return;
+    }
+
+    editor?.WriteMessage($"\nClassName: {paramObj.ClassName}");
+    editor?.WriteMessage($"\nName: {paramObj.Name}");
+    editor?.WriteMessage($"\nOrigin: {paramObj.Origin}");
+    editor?.WriteMessage("\n--- Параметры скрипта (ObjectProperties) ---");
+
+    foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
+    {
+        object val = prop.GetValue(paramObj);
+        editor?.WriteMessage(
+            $"\n  [{prop.PropertyType.Name}] {prop.Name} = {val}");
+    }
+}
+```
+
+---
+
+## 21. Частые ошибки и их решения
 
 | Ошибка | Причина | Решение |
 |--------|---------|---------|
@@ -733,6 +926,8 @@ namespace MyPlugin
 | `GetDynProperties` not found | Метода нет | Использовать `CustomProperties` / `ObjectProperties` |
 | Объект не распознаётся как параметрический | Неверный тип | Проверять `is McParametricObject`, не `is McCustomBase` |
 | Объекты вставлены, но не позиционированы | Нет установки позиции | Установить `paramObj.Origin = point` |
+| Ручки (grips) остаются на месте шаблона после клонирования | `Origin =` не перемещает геометрию, только метаданные | Использовать `DbEntity.Transform(Matrix3d.Displacement(...))` вместо `Origin =` |
+| Ручки не обновляются у объекта, у которого значение параметра не изменилось | `McProperty.SetValue()` не запускает пересчёт скрипта если значение совпадает | Использовать `Change(ExValue, false)` — запускает пересчёт всегда |
 | CS0021: Cannot apply indexing to `Parameters` | Нет индексатора `p[name]` | Использовать `GetParam(int)` / `SetParam(int, val)` — по индексу |
 | CS1503: cannot convert `string` to `int` в `GetParam` | `GetParam` принимает int, не string | Читать через `McProperty.GetValue(paramObj)` из `DbEntity.ObjectProperties` |
 | CS1503: cannot convert `string` to `int` в `SetParam` | `SetParam` принимает int, не string | Записывать через `McProperty.SetValue(paramObj, val)` или `Change(ExValue, bool)` |
@@ -742,6 +937,7 @@ namespace MyPlugin
 | `DbObject.Params` не возвращает параметры скрипта | `Params` = настройки приложения | Параметры скрипта — в `DbEntity.ObjectProperties` (тип `McProperty`) |
 | `R0 = 0` при чтении через `GetRedefined()` | `GetRedefined()` — только переопределённые | Дефолтные значения из БД там не появляются; читать через `McProperty.GetValue` |
 | `ExValue` не имеет конструктора с параметрами `(string, double)` | Нет такой перегрузки | `new ExValue()`, затем `ev.Name = name; ev.Value = val;` |
+| Команда не появляется после `NETLOAD` | Отсутствуют флаги регистрации | Обязательно использовать `CommandFlags.NoCheck | CommandFlags.NoPrefix` |
 
 ---
 
@@ -758,4 +954,8 @@ namespace MyPlugin
 - **`ExValue`** — контейнер имя+значение (namespace `Multicad`). Используется в `Change(ev, false)`. Конструктор без параметров, затем `ev.Name` и `ev.Value`
 - **`GetRedefined()`** возвращает `List<int>` — только ID **переопределённых** параметров. Значения из БД по умолчанию там не появляются → не подходит для чтения шаблонных значений
 - **Алгоритм вставки по уровню земли:** `Ycommon = Ymin - R0`, для каждой вершины `Origin=(Xi, Ycommon, 0)`, `rOtmetkaZemli = Yi - Ycommon`
+- **`MdiActiveDocument` == null** только при автозагрузке через `[NetModules]` до открытия чертежа. При вызове команды пользователем — всегда не null, `?.` не нужен
+- **`CommandFlags.NoCheck | CommandFlags.NoPrefix`** — в MultiCAD.NET это обязательная комбинация для регистрации команды, не просто опциональные флаги поведения
+- **`Origin =` НЕ перемещает физическую геометрию** `McParametricObject`. Присвоение `Origin` обновляет только метаданные точки вставки — ручки (grips) остаются на исходной позиции. Для корректного перемещения всегда использовать `DbEntity.Transform(Matrix3d.Displacement(target - paramObj.Origin))` + `DbObject.Update()`
+- **`Change(ev, false)` vs `McProperty.SetValue()`:** `SetValue` может не запустить пересчёт скрипта если новое значение совпадает со старым (типичная ситуация для объекта в точке Ymin при вставке по уровню земли, где rValue == R0). `Change()` всегда запускает пересчёт безусловно — использовать его когда нужна гарантированная реакция скрипта на установку параметра
 

@@ -1,4 +1,4 @@
-using Multicad;                              
+﻿using Multicad;
 using Multicad.DatabaseServices;
 using Multicad.DatabaseServices.StandardObjects;
 using Multicad.Geometry;
@@ -7,26 +7,30 @@ using Multicad.Runtime;
 using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
 
-namespace GetSpecifications
+namespace GetSpecifications.Commands
 {
+    /// <summary>
+    /// Команда InsertParamObject — вставка копий параметрического объекта СПДС вдоль вершин полилинии.
+    /// Если объект имеет атрибут rOtmetkaZemli, применяется алгоритм выравнивания по уровню земли:
+    /// все копии вставляются на общей базовой отметке Ycommon = Ymin − R0,
+    /// а отметка земли каждой копии устанавливается равной Yi − Ycommon.
+    /// </summary>
     public class InsertParamObjectCommand
     {
         private const string GROUND_LEVEL_ATTR = "rOtmetkaZemli";
 
-        private static void Msg(string text)
-            => Ed.WriteMessage(text);
-
         private static Editor Ed
             => Application.DocumentManager.MdiActiveDocument.Editor;
+
+        private static void Msg(string text)
+            => Ed.WriteMessage(text);
 
         [CommandMethod("InsertParamObject", CommandFlags.NoCheck | CommandFlags.NoPrefix)]
         public void InsertParamObject()
         {
-            // --- Шаг 1: Выбор параметрического объекта (с повтором при промахе) ---
             McParametricObject? srcParam = SelectParametricObject();
             if (srcParam == null) return;
 
-            // --- Шаг 2: Выбор незамкнутой полилинии (с повтором при промахе) ---
             DbPolyline? dbPoly = SelectPolyline();
             if (dbPoly == null) return;
 
@@ -37,7 +41,6 @@ namespace GetSpecifications
                 return;
             }
 
-            // --- Шаг 3: Получить все вершины полилинии ---
             List<Point3d> vertices = GetPolylineVertices(pline);
             if (vertices.Count == 0)
             {
@@ -45,11 +48,10 @@ namespace GetSpecifications
                 return;
             }
 
-            // --- Шаг 4: Считать R0 = rOtmetkaZemli из шаблона ---
             double? r0 = GetGroundLevelAttribute(srcParam);
+#if DEBUG
             Msg($"\n[ДИАГНОСТИКА] R0 = {(r0.HasValue ? r0.Value.ToString("F3") : "null (параметр не найден)")}");
-
-            // --- Шаг 5: Вставить копии ---
+#endif
             int insertedCount = r0.HasValue
                 ? InsertWithGroundLevel(srcParam, vertices, r0.Value)
                 : InsertAtVertices(srcParam, vertices);
@@ -57,13 +59,7 @@ namespace GetSpecifications
             Msg($"\nВставлено {insertedCount} объектов вдоль полилинии.");
         }
 
-        // ---------------------------------------------------------------
-        //  Выбор объектов с повтором при промахе
-        //  PromptStatus.Cancel  — Escape → выходим (return null)
-        //  PromptStatus.OK      — объект выбран → проверяем тип
-        //  иначе                — промах → повторяем запрос
-        // ---------------------------------------------------------------
-
+        // Цикл повторяет запрос до корректного выбора McParametricObject или Escape.
         private McParametricObject? SelectParametricObject()
         {
             var opts = new PromptEntityOptions("\nВыберите параметрический объект или [?]: ");
@@ -123,9 +119,6 @@ namespace GetSpecifications
             }
         }
 
-        // ---------------------------------------------------------------
-        //  Получение вершин полилинии
-        // ---------------------------------------------------------------
         private List<Point3d> GetPolylineVertices(Polyline3d polyline)
         {
             var result = new List<Point3d>();
@@ -135,15 +128,7 @@ namespace GetSpecifications
             return result;
         }
 
-        // ---------------------------------------------------------------
-        //  Чтение и запись параметра rOtmetkaZemli
-        //
-        //  McProperty наследует PropertyDescriptor (.NET):
-        //    GetValue(component)       — component = McParametricObject
-        //    SetValue(component, val)  — component = McParametricObject
-        //  GetParamLocalName(name)     — проверка наличия параметра у типа объекта
-        // ---------------------------------------------------------------
-
+        // Возвращает null, если объект не имеет атрибута rOtmetkaZemli
         private double? GetGroundLevelAttribute(McParametricObject paramObj)
         {
             foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
@@ -151,30 +136,39 @@ namespace GetSpecifications
                 if (prop.Name != GROUND_LEVEL_ATTR) continue;
                 return (double)prop.GetValue(paramObj);
             }
-
             return null;
         }
 
-        private void SetGroundLevelAttribute(McParametricObject paramObj, double value)
+        // Change() используется вместо McProperty.SetValue(), поскольку SetValue()
+        // не вызывает пересчёт скрипта, если новое значение совпадает со старым.
+        private void SetGroundLevelViaChange(McParametricObject paramObj, double value)
         {
-            foreach (McProperty prop in paramObj.DbEntity.ObjectProperties)
-            {
-                if (prop.Name != GROUND_LEVEL_ATTR) continue;
-                prop.SetValue(paramObj, value);
-                return;
-            }
+            var ev = new ExValue();
+            ev.Name = GROUND_LEVEL_ATTR;
+            ev.Value = value;
+            paramObj.Change(ev, false);
         }
 
-        // ---------------------------------------------------------------
-        //  Вставка С атрибутом rOtmetkaZemli
-        //
-        //  Алгоритм:
-        //    Ymin    = min(Y всех вершин полилинии)
-        //    Ycommon = Ymin - R0
-        //    Для каждой вершины (Xi, Yi):
-        //      Origin = (Xi, Ycommon, 0)
-        //      rOtmetkaZemli = Yi - Ycommon   (= R0 + (Yi - Ymin))
-        // ---------------------------------------------------------------
+        private McParametricObject? CloneParametricObject(McParametricObject source)
+        {
+            McDbObject? cloned = source.DbObject.Clone() as McDbObject;
+            if (cloned == null) return null;
+
+            cloned.AddToCurrentDocument();
+            return cloned.Entity as McParametricObject;
+        }
+
+        private void MoveObject(McParametricObject paramObj, Point3d targetOrigin)
+        {
+            Vector3d displacement = targetOrigin - paramObj.Origin;
+            Matrix3d moveMatrix = Matrix3d.Displacement(displacement);
+            paramObj.DbEntity.Transform(moveMatrix);
+        }
+
+        // === Алгоритм выравнивания по уровню земли ===
+        // Все стойки должны иметь одну базовую отметку вставки (Ycommon),
+        // а индивидуальная высота над землёй задаётся через rOtmetkaZemli.
+        // Ycommon = Ymin − R0, где R0 — значение атрибута у исходного объекта.
         private int InsertWithGroundLevel(
             McParametricObject source,
             List<Point3d> vertices,
@@ -185,26 +179,30 @@ namespace GetSpecifications
                 if (v.Y < yMin) yMin = v.Y;
 
             double yCommon = yMin - r0;
-
+#if DEBUG
             Msg($"\n[ДИАГНОСТИКА] R0={r0:F3}, Ymin={yMin:F3}, Ycommon={yCommon:F3}");
             Msg($"\n[ДИАГНОСТИКА] Вершины ({vertices.Count} шт.):");
             foreach (var v in vertices)
                 Msg($"\n  X={v.X:F3} Y={v.Y:F3} → Origin.Y={yCommon:F3}, rOtm={v.Y - yCommon:F3}");
-
+#endif
             int count = 0;
             foreach (Point3d vertex in vertices)
             {
                 try
                 {
-                    double rValue = vertex.Y - yCommon;
-
                     McParametricObject? copy = CloneParametricObject(source);
                     if (copy == null) continue;
 
-                    copy.Origin = new Point3d(vertex.X, yCommon, 0);
-                    SetGroundLevelAttribute(copy, rValue);
+                    var targetOrigin = new Point3d(vertex.X, yCommon, 0);
+                    double rValue = vertex.Y - yCommon;
+
+                    MoveObject(copy, targetOrigin);
+                    SetGroundLevelViaChange(copy, rValue);
                     copy.DbObject.Update();
+
+#if DEBUG
                     Msg($"\n[ДИАГНОСТИКА] Вставлен: Origin=({copy.Origin.X:F3}, {copy.Origin.Y:F3}), rOtm={rValue:F3}");
+#endif
                     count++;
                 }
                 catch (Exception ex)
@@ -215,9 +213,6 @@ namespace GetSpecifications
             return count;
         }
 
-        // ---------------------------------------------------------------
-        //  Вставка БЕЗ атрибута rOtmetkaZemli — точно в вершины
-        // ---------------------------------------------------------------
         private int InsertAtVertices(McParametricObject source, List<Point3d> vertices)
         {
             int count = 0;
@@ -228,7 +223,7 @@ namespace GetSpecifications
                     McParametricObject? copy = CloneParametricObject(source);
                     if (copy == null) continue;
 
-                    copy.Origin = vertex;
+                    MoveObject(copy, vertex);
                     copy.DbObject.Update();
                     count++;
                 }
@@ -238,18 +233,6 @@ namespace GetSpecifications
                 }
             }
             return count;
-        }
-
-        // ---------------------------------------------------------------
-        //  Клонирование
-        // ---------------------------------------------------------------
-        private McParametricObject? CloneParametricObject(McParametricObject source)
-        {
-            McDbObject? cloned = source.DbObject.Clone() as McDbObject;
-            if (cloned == null) return null;
-
-            cloned.AddToCurrentDocument();
-            return cloned.Entity as McParametricObject;
         }
     }
 }
