@@ -1,0 +1,312 @@
+﻿{
+    "rows": [
+        {
+            "position": "1",
+            "prefix": "Швеллер ",
+            "top": "12У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "10,4",
+            "note": "м",
+            "workVolumeName": "Швеллер 12У",
+            "ferCoefficient": 43.1,
+            "isBoxSection": true
+        },
+        {
+            "position": "2",
+            "prefix": "Швеллер ",
+            "top": "14У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "12,3",
+            "note": "м",
+            "workVolumeName": "Швеллер 14У",
+            "ferCoefficient": 41.6,
+            "isBoxSection": true
+        },
+        {
+            "position": "3",
+            "prefix": "Швеллер ",
+            "top": "16У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "14,2",
+            "note": "м",
+            "workVolumeName": "Швеллер 16У",
+            "ferCoefficient": 40.5,
+            "isBoxSection": true
+        },
+        {
+            "position": "4",
+            "prefix": "Швеллер ",
+            "top": "18У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "16,3",
+            "note": "м",
+            "workVolumeName": "Швеллер 18У",
+            "ferCoefficient": 39.3,
+            "isBoxSection": true
+        },
+        {
+            "position": "5",
+            "prefix": "Швеллер ",
+            "top": "20У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "18,4",
+            "note": "м",
+            "workVolumeName": "Швеллер 20У",
+            "ferCoefficient": 38.3,
+            "isBoxSection": true
+        },
+        {
+            "position": "6",
+            "prefix": "Швеллер ",
+            "top": "22У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "21,0",
+            "note": "м",
+            "workVolumeName": "Швеллер 22У",
+            "ferCoefficient": 36.6,
+            "isBoxSection": true
+        },
+        {
+            "position": "7",
+            "prefix": "Швеллер ",
+            "top": "24У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "24,0",
+            "note": "м",
+            "workVolumeName": "Швеллер 24У",
+            "ferCoefficient": 35.0,
+            "isBoxSection": true
+        },
+        {
+            "position": "8",
+            "prefix": "Швеллер ",
+            "top": "27У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "27,7",
+            "note": "м",
+            "workVolumeName": "Швеллер 27У",
+            "ferCoefficient": 33.2,
+            "isBoxSection": true
+        },
+        {
+            "position": "9",
+            "prefix": "Швеллер ",
+            "top": "30У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "31,8",
+            "note": "м",
+            "workVolumeName": "Швеллер 30У",
+            "ferCoefficient": 31.4,
+            "isBoxSection": true
+        },
+        {
+            "position": "10",
+            "prefix": "Швеллер ",
+            "top": "33У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "36,5",
+            "note": "м",
+            "workVolumeName": "Швеллер 33У",
+            "ferCoefficient": 29.6,
+            "isBoxSection": true
+        },
+        {
+            "position": "11",
+            "prefix": "Швеллер ",
+            "top": "36У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "41,9",
+            "note": "м",
+            "workVolumeName": "Швеллер 36У",
+            "ferCoefficient": 27.7,
+            "isBoxSection": true
+        },
+        {
+            "position": "12",
+            "prefix": "Швеллер ",
+            "top": "40У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "48,3",
+            "note": "м",
+            "workVolumeName": "Швеллер 40У",
+            "ferCoefficient": 26.1,
+            "isBoxSection": true
+        },
+        {
+            "position": "п-1",
+            "prefix": "Лист ",
+            "top": "5х120х150 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "0,71",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-2",
+            "prefix": "Лист ",
+            "top": "5х140х160 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "0,88",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-3",
+            "prefix": "Лист ",
+            "top": "5х160х170 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "1,07",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-4",
+            "prefix": "Лист ",
+            "top": "5х180х180 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "1,27",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-5",
+            "prefix": "Лист ",
+            "top": "5х190х200 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "1,5",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-6",
+            "prefix": "Лист ",
+            "top": "5х200х220 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "1,73",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-7",
+            "prefix": "Лист ",
+            "top": "5х220х240 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "2,08",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-8",
+            "prefix": "Лист ",
+            "top": "5х230х270 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "2,44",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-9",
+            "prefix": "Лист ",
+            "top": "5х240х300 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "2,83",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-10",
+            "prefix": "Лист ",
+            "top": "5х250х330 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "3,24",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-11",
+            "prefix": "Лист ",
+            "top": "5х260х360 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "3,68",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "п-12",
+            "prefix": "Лист ",
+            "top": "5х270х400 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "4,24",
+            "note": "",
+            "workVolumeName": "Лист толщиной 5 мм",
+            "ferCoefficient": 51.1,
+            "isBoxSection": false
+        },
+        {
+            "position": "а",
+            "prefix": "Швеллер ",
+            "top": "12У ГОСТ 8240-97",
+            "suffix": "",
+            "mass": "10,4",
+            "note": "м",
+            "workVolumeName": "Швеллер 12У",
+            "ferCoefficient": 43.1,
+            "isBoxSection": true
+        },
+        {
+            "position": "б",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "suffix": " L=600",
+            "mass": "2,26",
+            "note": "",
+            "workVolumeName": "Уголок 50х50х5",
+            "ferCoefficient": 52.0,
+            "isBoxSection": false
+        },
+        {
+            "position": "в",
+            "prefix": "Лист ",
+            "top": "6х90х90 ГОСТ 19903-2015",
+            "suffix": "",
+            "mass": "0,38",
+            "note": "",
+            "workVolumeName": "Лист толщиной 6 мм",
+            "ferCoefficient": 42.7,
+            "isBoxSection": false
+        },
+        {
+            "position": "г",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "suffix": "",
+            "mass": "3,77",
+            "note": "м",
+            "workVolumeName": "Уголок 50х50х5",
+            "ferCoefficient": 52.0,
+            "isBoxSection": false
+        }
+    ]
+}

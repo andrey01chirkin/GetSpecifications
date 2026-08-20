@@ -1,12 +1,12 @@
-﻿using Multicad;
+﻿using GetSpecifications.Specifications.Common;
+using GetSpecifications.Specifications.Table1;
+using GetSpecifications.Specifications.Table2;
+using HostMgd.ApplicationServices;
+using HostMgd.EditorInput;
+using Multicad;
 using Multicad.Geometry;
 using Multicad.Objects;
 using Multicad.Runtime;
-using HostMgd.ApplicationServices;
-using HostMgd.EditorInput;
-using GetSpecifications.Specifications.Common;
-using GetSpecifications.Specifications.Table1;
-using GetSpecifications.Specifications.Table2;
 
 namespace GetSpecifications.Commands
 {
@@ -45,7 +45,7 @@ namespace GetSpecifications.Commands
                 return;
             }
 
-            string? steelGrade = PromptSteelGrade();
+            string? steelGrade = SpecificationTableHelper.PromptSteelGrade(Ed);
             if (steelGrade == null)
                 return;
 
@@ -62,27 +62,6 @@ namespace GetSpecifications.Commands
                 Msg("\n" + table2Message);
             else
                 Msg("\n" + table2Message);
-        }
-
-        // Пустая строка ввода означает согласие с маркой по умолчанию «245-4».
-        private string? PromptSteelGrade()
-        {
-            var opts = new PromptStringOptions(
-                "\nУкажите марку стали по ГОСТ 27772-2021 для металлических конструкций <245-4>: ")
-            {
-                AllowSpaces = true
-            };
-
-            PromptResult res = Ed.GetString(opts);
-
-            if (res.Status != PromptStatus.OK)
-                return null;
-
-            string value = res.StringResult?.Trim() ?? "";
-            if (string.IsNullOrWhiteSpace(value))
-                value = "245-4";
-
-            return value;
         }
 
         // Цикл повторяет запрос выбора до тех пор, пока в наборе не окажется хотя бы один

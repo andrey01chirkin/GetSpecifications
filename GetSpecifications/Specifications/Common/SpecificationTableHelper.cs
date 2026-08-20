@@ -1,7 +1,7 @@
-﻿using Multicad.Geometry;
-using Multicad.Symbols.Tables;
-using HostMgd.ApplicationServices;
+﻿using HostMgd.ApplicationServices;
 using HostMgd.EditorInput;
+using Multicad.Geometry;
+using Multicad.Symbols.Tables;
 using Teigha.DatabaseServices;
 
 namespace GetSpecifications.Specifications.Common
@@ -23,6 +23,26 @@ namespace GetSpecifications.Specifications.Common
             EnsureTextStyleExists(
                 SpecificationObjectConstants.TEXT_STYLE,
                 SpecificationObjectConstants.TEXT_FONT_FILE);
+        }
+
+        /// <summary>
+        /// Запрашивает у пользователя марку стали. Пустой ввод → значение по умолчанию «245-4».
+        /// Возвращает null если пользователь нажал Esc.
+        /// </summary>
+        public static string? PromptSteelGrade(Editor ed)
+        {
+            var opts = new PromptStringOptions(
+                "\nУкажите марку стали по ГОСТ 27772-2021 для металлических конструкций <245-4>: ")
+            {
+                AllowSpaces = true
+            };
+
+            PromptResult res = ed.GetString(opts);
+            if (res.Status != PromptStatus.OK)
+                return null;
+
+            string value = res.StringResult?.Trim() ?? "";
+            return string.IsNullOrWhiteSpace(value) ? "245-4" : value;
         }
 
         /// <summary>
@@ -105,12 +125,10 @@ namespace GetSpecifications.Specifications.Common
             int firstDataRow = SpecificationTableLayout.FIRST_DATA_ROW;
             int lastDataRow = firstDataRow + dataRows - 1;
 
-            // Тонкие границы всех ячеек данных — базовый слой.
             for (int r = firstDataRow; r <= lastDataRow; r++)
                 for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
                     table.SetCellBorderAbs(BorderTypesEnum.All, r, c, SpecificationTableLayout.LW_THIN);
 
-            // Толстые вертикали в шапке и строках данных.
             for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
                 table.SetCellBorderAbs(BorderTypesEnum.Vertical, headerRow, c, SpecificationTableLayout.LW_THICK);
 
@@ -118,18 +136,15 @@ namespace GetSpecifications.Specifications.Common
                 for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
                     table.SetCellBorderAbs(BorderTypesEnum.Vertical, r, c, SpecificationTableLayout.LW_THICK);
 
-            // Толстая рамка вокруг шапки.
             for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
                 table.SetCellBorderAbs(BorderTypesEnum.All, headerRow, c, SpecificationTableLayout.LW_THICK);
 
-            // Толстые внешние горизонтали: верх шапки и низ последней строки данных.
             for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
             {
                 table.SetCellBorderAbs(BorderTypesEnum.Top, headerRow, c, SpecificationTableLayout.LW_THICK);
                 table.SetCellBorderAbs(BorderTypesEnum.Bottom, lastDataRow, c, SpecificationTableLayout.LW_THICK);
             }
 
-            // Толстые вертикальные внешние края шапки и строк данных.
             table.SetCellBorderAbs(BorderTypesEnum.Left, headerRow, 0, SpecificationTableLayout.LW_THICK);
             table.SetCellBorderAbs(BorderTypesEnum.Right, headerRow, SpecificationTableLayout.TABLE_COLS - 1, SpecificationTableLayout.LW_THICK);
 
@@ -139,10 +154,12 @@ namespace GetSpecifications.Specifications.Common
                 table.SetCellBorderAbs(BorderTypesEnum.Right, r, SpecificationTableLayout.TABLE_COLS - 1, SpecificationTableLayout.LW_THICK);
             }
 
-            // Строка заголовка (row 0): убрать все границы кроме нижней через глобальный индексатор.
+            // Строка заголовка (row 0): только нижняя граница.
+            // SetBorderLineweight через глобальный индексатор — единственный способ управлять
+            // границами строки HeaderFirst без конфликта с секционной адресацией.
             for (int c = 0; c < SpecificationTableLayout.TABLE_COLS; c++)
             {
-                table[0, c].SetBorderLineweight(BorderTypesEnum.ButBottom, -9); // -9 = невидимая линия
+                table[0, c].SetBorderLineweight(BorderTypesEnum.ButBottom, -9);
                 table[0, c].SetBorderLineweight(BorderTypesEnum.Bottom, SpecificationTableLayout.LW_THICK);
             }
         }

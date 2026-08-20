@@ -12,7 +12,9 @@
                     "nameTemplate": "Труба-219x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "31,52",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 219х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -21,7 +23,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -30,7 +34,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -39,7 +45,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -48,7 +56,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -64,7 +74,9 @@
                     "nameTemplate": "Труба-219x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "31,52",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 219х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -73,7 +85,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -82,7 +96,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -91,7 +107,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -100,7 +118,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "33,91",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -109,7 +129,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,24",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -125,7 +147,9 @@
                     "nameTemplate": "Труба-273x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "39,51",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 273х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -134,7 +158,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -143,7 +169,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -152,7 +180,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -161,7 +191,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -177,7 +209,9 @@
                     "nameTemplate": "Труба-273x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "39,51",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 273х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -186,7 +220,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -195,7 +231,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -204,7 +242,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -213,7 +253,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "33,91",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -222,7 +264,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,88",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -238,7 +282,9 @@
                     "nameTemplate": "Труба-325x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "47,20",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 325х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -247,7 +293,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -256,7 +304,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "15,39",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -265,7 +315,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -274,7 +326,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -290,7 +344,9 @@
                     "nameTemplate": "Труба-325x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "47,20",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 325х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -299,7 +355,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -308,7 +366,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -317,7 +377,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -326,7 +388,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "45,22",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 16 мм",
+                    "ferCoefficient": 16.2
                 },
                 {
                     "kind": "fraction",
@@ -335,7 +399,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,59",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -351,7 +417,9 @@
                     "nameTemplate": "Труба-426x8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "82,47",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 426х8",
+                    "ferCoefficient": 16.6
                 },
                 {
                     "kind": "fraction",
@@ -360,7 +428,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -369,7 +439,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "31,79",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 20 мм",
+                    "ferCoefficient": 13.0
                 },
                 {
                     "kind": "fraction",
@@ -378,7 +450,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -387,7 +461,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -403,7 +479,9 @@
                     "nameTemplate": "Труба-426x8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "82,47",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 426х8",
+                    "ferCoefficient": 16.6
                 },
                 {
                     "kind": "fraction",
@@ -412,7 +490,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -421,7 +501,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -430,7 +512,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -439,7 +523,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "56,52",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 20 мм",
+                    "ferCoefficient": 13.0
                 },
                 {
                     "kind": "fraction",
@@ -448,7 +534,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,88",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -464,7 +552,9 @@
                     "nameTemplate": "Труба-159x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "22,64",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 159х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -473,7 +563,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "3,77",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -482,7 +574,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -491,7 +585,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,55",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -500,7 +596,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,50",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -516,7 +614,9 @@
                     "nameTemplate": "Труба-159x6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "22,64",
-                    "note": "м\n(см. прим.п.8)"
+                    "note": "м\n(см. прим.п.8)",
+                    "workVolumeName": "Труба 159х6",
+                    "ferCoefficient": 22.0
                 },
                 {
                     "kind": "fraction",
@@ -525,7 +625,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "15,07",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -534,7 +636,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 12 мм",
+                    "ferCoefficient": 21.5
                 },
                 {
                     "kind": "fraction",
@@ -543,7 +647,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,55",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -552,7 +658,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,50",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -561,7 +669,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,41",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         },
@@ -577,7 +687,9 @@
                     "nameTemplate": "Труба-530x8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "102,99",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Труба 530х8",
+                    "ferCoefficient": 16.6
                 },
                 {
                     "kind": "fraction",
@@ -586,7 +698,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "138,47",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 25 мм",
+                    "ferCoefficient": 10.4
                 },
                 {
                     "kind": "fraction",
@@ -595,7 +709,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "56,52",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 20 мм",
+                    "ferCoefficient": 13.0
                 },
                 {
                     "kind": "fraction",
@@ -604,7 +720,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "4,32",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -613,7 +731,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,43",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 },
                 {
                     "kind": "fraction",
@@ -622,7 +742,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,36",
-                    "note": ""
+                    "note": "",
+                    "workVolumeName": "Лист толщиной 20 мм",
+                    "ferCoefficient": 13.0
                 },
                 {
                     "kind": "fraction",
@@ -631,7 +753,9 @@
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
-                    "note": "см. эскиз"
+                    "note": "см. эскиз",
+                    "workVolumeName": "Лист толщиной 10 мм",
+                    "ferCoefficient": 25.7
                 }
             ]
         }

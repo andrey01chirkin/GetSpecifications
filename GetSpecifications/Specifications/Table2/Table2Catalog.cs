@@ -37,6 +37,8 @@ namespace GetSpecifications.Specifications.Table2
 
         public string Mass { get; set; } = "";
         public string Note { get; set; } = "";
+        public string WorkVolumeName { get; set; } = "";
+        public double FerCoefficient { get; set; }
     }
 
     /// <summary>Агрегат по одному типу стойки: суммарное количество и длина.</summary>
