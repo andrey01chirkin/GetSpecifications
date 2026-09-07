@@ -1,0 +1,204 @@
+﻿{
+    "rows": [
+        {
+            "kind": "title",
+            "name": "Покрытие кабельной эстакады",
+            "quantity": "{coverLen}",
+            "note": "м"
+        },
+        {
+            "kind": "fraction",
+            "position": "1",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "4",
+            "mass": "3,77"
+        },
+        {
+            "kind": "text",
+            "position": "2",
+            "name": "Н57-750-0,7 ГОСТ 24045-2016",
+            "quantity": "2,6",
+            "mass": "8,70",
+            "noteTop": "м2 окрашенный",
+            "noteBottom": "с двух сторон"
+        },
+        {
+            "kind": "fraction",
+            "position": "3",
+            "prefix": "ОЦ ",
+            "top": "Б-НО-0,7х400 ГОСТ 19904-90",
+            "bottom": "Ст3пс2 ГОСТ 14918-2020",
+            "quantity": "1",
+            "mass": "2,20",
+            "noteTop": "м, окрашенный",
+            "noteBottom": "с двух сторон"
+        },
+        {
+            "kind": "text",
+            "name": "Винт самонарезающий В6х25",
+            "quantity": "16",
+            "mass": "0,0081"
+        },
+        {
+            "kind": "text",
+            "name": "Шайба уплотнительная Шу-6",
+            "quantity": "16",
+            "mass": "0,00025"
+        },
+        {
+            "kind": "text",
+            "name": "Заклепка комбинированная ЗК-12-45",
+            "quantity": "6",
+            "mass": "0,0028"
+        },
+        {
+            "kind": "text",
+            "position": "Кр-1",
+            "name": "Каркас Кр-1",
+            "quantity": "1",
+            "mass": "28,8"
+        },
+        { "kind": "empty" },
+        {
+            "kind": "title",
+            "name": "Каркас Кр-1",
+            "mass": "28,8"
+        },
+        {
+            "kind": "fraction",
+            "position": "4",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "suffix": " L=850",
+            "quantity": "2",
+            "mass": "3,21"
+        },
+        {
+            "kind": "fraction",
+            "position": "5",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "suffix": " L=2200",
+            "quantity": "1",
+            "mass": "8,3"
+        },
+        {
+            "kind": "fraction",
+            "position": "6",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "suffix": " L=1150",
+            "quantity": "2",
+            "mass": "4,34"
+        },
+        {
+            "kind": "fraction",
+            "position": "7",
+            "prefix": "Лист ",
+            "top": "6х60х80 ГОСТ 19903-2015",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "4",
+            "mass": "0,23"
+        },
+        {
+            "kind": "fraction",
+            "position": "8",
+            "prefix": "Лист ",
+            "top": "6х190х500 ГОСТ 19903-2015",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "1",
+            "mass": "4,48"
+        },
+        { "kind": "empty" },
+        {
+            "kind": "title",
+            "name": "Узел подхода эстакады к зданиям"
+        },
+        {
+            "kind": "fraction",
+            "position": "11",
+            "prefix": "ОЦ ",
+            "top": "Б-НО-0,7х300х2850 ГОСТ 19904-90",
+            "bottom": "Ст3пс2 ГОСТ 14918-80",
+            "quantity": "1",
+            "mass": "2,85",
+            "noteTop": "окрашенный",
+            "noteBottom": "с двух сторон"
+        },
+        { "kind": "empty" },
+        {
+            "kind": "title",
+            "name": "Усиление покрытия кабельной эстакады",
+            "note": "м"
+        },
+        {
+            "kind": "fraction",
+            "position": "1",
+            "prefix": "Уголок ",
+            "top": "50х50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "2",
+            "mass": "3,77"
+        },
+        {
+            "kind": "fraction",
+            "position": "12",
+            "prefix": "Лист ",
+            "top": "3х1000х1300 ГОСТ 19903-2015",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "2",
+            "mass": "30,62"
+        },
+        { "kind": "empty" },
+        {
+            "kind": "title",
+            "name": "Углы поворота (расход на ед.)"
+        },
+        {
+            "kind": "fraction",
+            "position": "а",
+            "prefix": "Уголок ",
+            "top": "50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "10,6",
+            "mass": "3,77",
+            "note": "м"
+        },
+        {
+            "kind": "fraction",
+            "position": "б",
+            "prefix": "Уголок ",
+            "top": "50х5 ГОСТ 8509-93",
+            "bottom": "С{steel} ГОСТ 27772-2021",
+            "quantity": "2,5",
+            "mass": "3,77",
+            "note": "м"
+        },
+        {
+            "kind": "fraction",
+            "position": "9",
+            "prefix": "Полоса ",
+            "top": "6х60 ГОСТ 103-2006",
+            "bottom": "Ст3пс2 ГОСТ 535-2005",
+            "quantity": "3,2",
+            "mass": "2,83",
+            "note": "м"
+        },
+        {
+            "kind": "fraction",
+            "position": "10",
+            "prefix": "ОЦ ",
+            "top": "Б-НО-0,7 ГОСТ 19904-90",
+            "bottom": "Ст3пс2 ГОСТ 14918-2020",
+            "quantity": "1,4",
+            "mass": "5,49",
+            "noteTop": "м2 окрашенный",
+            "noteBottom": "с двух сторон"
+        }
+    ]
+}

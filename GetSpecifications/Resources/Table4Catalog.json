@@ -273,7 +273,7 @@
             "note": "м",
             "workVolumeName": "Швеллер 12У",
             "ferCoefficient": 43.1,
-            "isBoxSection": true
+            "isBoxSection": false
         },
         {
             "position": "б",

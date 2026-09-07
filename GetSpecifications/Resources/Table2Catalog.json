@@ -9,7 +9,7 @@
                 {
                     "kind": "text",
                     "position": "Т-1",
-                    "nameTemplate": "Труба-219x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-219х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "31,52",
                     "note": "м\n(см. прим.п.8)",
@@ -19,7 +19,7 @@
                 {
                     "kind": "fraction",
                     "position": "1",
-                    "top": "25x580x580 ГОСТ 19903-2015",
+                    "top": "25х580х580 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
@@ -30,7 +30,7 @@
                 {
                     "kind": "fraction",
                     "position": "2",
-                    "top": "12x300x300 ГОСТ 19903-2015",
+                    "top": "12х300х300 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
@@ -41,7 +41,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -52,7 +52,7 @@
                 {
                     "kind": "fraction",
                     "position": "4",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -71,7 +71,7 @@
                 {
                     "kind": "text",
                     "position": "Т-1",
-                    "nameTemplate": "Труба-219x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-219х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "31,52",
                     "note": "м\n(см. прим.п.8)",
@@ -81,7 +81,7 @@
                 {
                     "kind": "fraction",
                     "position": "1",
-                    "top": "25x580x580 ГОСТ 19903-2015",
+                    "top": "25х580х580 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
@@ -92,7 +92,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -103,7 +103,7 @@
                 {
                     "kind": "fraction",
                     "position": "4",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -114,7 +114,7 @@
                 {
                     "kind": "fraction",
                     "position": "5",
-                    "top": "12x600x600 ГОСТ 19903-2015",
+                    "top": "12х600х600 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "33,91",
@@ -125,7 +125,7 @@
                 {
                     "kind": "fraction",
                     "position": "6",
-                    "top": "10x150x190 ГОСТ 19903-2015",
+                    "top": "10х150х190 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,24",
@@ -144,7 +144,7 @@
                 {
                     "kind": "text",
                     "position": "Т-2",
-                    "nameTemplate": "Труба-273x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-273х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "39,51",
                     "note": "м\n(см. прим.п.8)",
@@ -154,7 +154,7 @@
                 {
                     "kind": "fraction",
                     "position": "1",
-                    "top": "25x580x580 ГОСТ 19903-2015",
+                    "top": "25х580х580 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
@@ -165,7 +165,7 @@
                 {
                     "kind": "fraction",
                     "position": "2",
-                    "top": "12x300x300 ГОСТ 19903-2015",
+                    "top": "12х300х300 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
@@ -176,7 +176,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -187,7 +187,7 @@
                 {
                     "kind": "fraction",
                     "position": "4",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -206,7 +206,7 @@
                 {
                     "kind": "text",
                     "position": "Т-2",
-                    "nameTemplate": "Труба-273x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-273х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "39,51",
                     "note": "м\n(см. прим.п.8)",
@@ -216,7 +216,7 @@
                 {
                     "kind": "fraction",
                     "position": "1",
-                    "top": "25x580x580 ГОСТ 19903-2015",
+                    "top": "25х580х580 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "66,02",
@@ -227,7 +227,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -238,7 +238,7 @@
                 {
                     "kind": "fraction",
                     "position": "4",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -249,7 +249,7 @@
                 {
                     "kind": "fraction",
                     "position": "5",
-                    "top": "12x600x600 ГОСТ 19903-2015",
+                    "top": "12х600х600 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "33,91",
@@ -260,7 +260,7 @@
                 {
                     "kind": "fraction",
                     "position": "6а",
-                    "top": "10x150x160 ГОСТ 19903-2015",
+                    "top": "10х150х160 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,88",
@@ -279,7 +279,7 @@
                 {
                     "kind": "text",
                     "position": "Т-3",
-                    "nameTemplate": "Труба-325x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-325х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "47,20",
                     "note": "м\n(см. прим.п.8)",
@@ -289,7 +289,7 @@
                 {
                     "kind": "fraction",
                     "position": "1а",
-                    "top": "25x700x700 ГОСТ 19903-2015",
+                    "top": "25х700х700 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
@@ -300,18 +300,18 @@
                 {
                     "kind": "fraction",
                     "position": "2а",
-                    "top": "25x700x700 ГОСТ 19903-2015",
+                    "top": "16х350х350 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "15,39",
                     "note": "",
-                    "workVolumeName": "Лист толщиной 25 мм",
-                    "ferCoefficient": 10.4
+                    "workVolumeName": "Лист толщиной 16 мм",
+                    "ferCoefficient": 16.2
                 },
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -322,7 +322,7 @@
                 {
                     "kind": "fraction",
                     "position": "4а",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -341,7 +341,7 @@
                 {
                     "kind": "text",
                     "position": "Т-3",
-                    "nameTemplate": "Труба-325x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-325х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "47,20",
                     "note": "м\n(см. прим.п.8)",
@@ -351,7 +351,7 @@
                 {
                     "kind": "fraction",
                     "position": "1а",
-                    "top": "25x700x700 ГОСТ 19903-2015",
+                    "top": "25х700х700 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
@@ -362,7 +362,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -373,7 +373,7 @@
                 {
                     "kind": "fraction",
                     "position": "4а",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -384,7 +384,7 @@
                 {
                     "kind": "fraction",
                     "position": "5а",
-                    "top": "16x600x600 ГОСТ 19903-2015",
+                    "top": "16х600х600 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "45,22",
@@ -395,7 +395,7 @@
                 {
                     "kind": "fraction",
                     "position": "6б",
-                    "top": "10x150x135 ГОСТ 19903-2015",
+                    "top": "10х150х135 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,59",
@@ -414,7 +414,7 @@
                 {
                     "kind": "text",
                     "position": "Т-4",
-                    "nameTemplate": "Труба-426x8-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-426х8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "82,47",
                     "note": "м\n(см. прим.п.8)",
@@ -424,7 +424,7 @@
                 {
                     "kind": "fraction",
                     "position": "1а",
-                    "top": "25x700x700 ГОСТ 19903-2015",
+                    "top": "25х700х700 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
@@ -435,7 +435,7 @@
                 {
                     "kind": "fraction",
                     "position": "2б",
-                    "top": "20x450x450 ГОСТ 19903-2015",
+                    "top": "20х450х450 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "31,79",
@@ -446,7 +446,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -457,7 +457,7 @@
                 {
                     "kind": "fraction",
                     "position": "4а",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -476,7 +476,7 @@
                 {
                     "kind": "text",
                     "position": "Т-4",
-                    "nameTemplate": "Труба-426x8-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-426х8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "82,47",
                     "note": "м\n(см. прим.п.8)",
@@ -486,7 +486,7 @@
                 {
                     "kind": "fraction",
                     "position": "1а",
-                    "top": "25x700x700 ГОСТ 19903-2015",
+                    "top": "25х700х700 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "96,16",
@@ -497,7 +497,7 @@
                 {
                     "kind": "fraction",
                     "position": "3",
-                    "top": "10x150x150 ГОСТ 19903-2015",
+                    "top": "10х150х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "1,77",
@@ -508,7 +508,7 @@
                 {
                     "kind": "fraction",
                     "position": "4а",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",
@@ -519,7 +519,7 @@
                 {
                     "kind": "fraction",
                     "position": "5б",
-                    "top": "20x600x600 ГОСТ 19903-2015",
+                    "top": "20х600х600 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "56,52",
@@ -530,7 +530,7 @@
                 {
                     "kind": "fraction",
                     "position": "6в",
-                    "top": "10x150x85 ГОСТ 19903-2015",
+                    "top": "10х150х85 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,88",
@@ -549,7 +549,7 @@
                 {
                     "kind": "text",
                     "position": "Т-5",
-                    "nameTemplate": "Труба-159x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-159х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "22,64",
                     "note": "м\n(см. прим.п.8)",
@@ -559,7 +559,7 @@
                 {
                     "kind": "fraction",
                     "position": "7",
-                    "top": "12x200x200 ГОСТ 19903-2015",
+                    "top": "12х200х200 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "3,77",
@@ -570,7 +570,7 @@
                 {
                     "kind": "fraction",
                     "position": "2",
-                    "top": "12x300x300 ГОСТ 19903-2015",
+                    "top": "12х300х300 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
@@ -581,7 +581,7 @@
                 {
                     "kind": "fraction",
                     "position": "3а",
-                    "top": "10x100x70 ГОСТ 19903-2015",
+                    "top": "10х100х70 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,55",
@@ -592,7 +592,7 @@
                 {
                     "kind": "fraction",
                     "position": "4б",
-                    "top": "10x80x80 ГОСТ 19903-2015",
+                    "top": "10х80х80 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,50",
@@ -611,7 +611,7 @@
                 {
                     "kind": "text",
                     "position": "Т-5",
-                    "nameTemplate": "Труба-159x6-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-159х6-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "22,64",
                     "note": "м\n(см. прим.п.8)",
@@ -621,7 +621,7 @@
                 {
                     "kind": "fraction",
                     "position": "7а",
-                    "top": "12x400x400 ГОСТ 19903-2015",
+                    "top": "12х400х400 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "15,07",
@@ -632,7 +632,7 @@
                 {
                     "kind": "fraction",
                     "position": "2",
-                    "top": "12x300x300 ГОСТ 19903-2015",
+                    "top": "12х300х300 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "8,48",
@@ -643,7 +643,7 @@
                 {
                     "kind": "fraction",
                     "position": "3а",
-                    "top": "10x100x70 ГОСТ 19903-2015",
+                    "top": "10х100х70 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,55",
@@ -654,7 +654,7 @@
                 {
                     "kind": "fraction",
                     "position": "4б",
-                    "top": "10x80x80 ГОСТ 19903-2015",
+                    "top": "10х80х80 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,50",
@@ -665,7 +665,7 @@
                 {
                     "kind": "fraction",
                     "position": "6г",
-                    "top": "10x150x120 ГОСТ 19903-2015",
+                    "top": "10х150х120 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "1,41",
@@ -684,7 +684,7 @@
                 {
                     "kind": "text",
                     "position": "Т-6",
-                    "nameTemplate": "Труба-530x8-{steel}-ГОСТ 58064-2018",
+                    "nameTemplate": "Труба-530х8-{steel}-ГОСТ 58064-2018",
                     "quantityTemplate": "{totalLen}",
                     "mass": "102,99",
                     "note": "",
@@ -694,7 +694,7 @@
                 {
                     "kind": "fraction",
                     "position": "8",
-                    "top": "25x840x840 ГОСТ 19903-2015",
+                    "top": "25х840х840 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "138,47",
@@ -705,7 +705,7 @@
                 {
                     "kind": "fraction",
                     "position": "5б",
-                    "top": "20x600x600 ГОСТ 19903-2015",
+                    "top": "20х600х600 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "1",
                     "mass": "56,52",
@@ -716,7 +716,7 @@
                 {
                     "kind": "fraction",
                     "position": "9",
-                    "top": "10x200x275 ГОСТ 19903-2015",
+                    "top": "10х200х275 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "8",
                     "mass": "4,32",
@@ -727,7 +727,7 @@
                 {
                     "kind": "fraction",
                     "position": "10",
-                    "top": "10x155x200 ГОСТ 19903-2015",
+                    "top": "10х155х200 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,43",
@@ -738,7 +738,7 @@
                 {
                     "kind": "fraction",
                     "position": "11",
-                    "top": "20x100x150 ГОСТ 19903-2015",
+                    "top": "20х100х150 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "2,36",
@@ -749,7 +749,7 @@
                 {
                     "kind": "fraction",
                     "position": "4а",
-                    "top": "10x100x100 ГОСТ 19903-2015",
+                    "top": "10х100х100 ГОСТ 19903-2015",
                     "bottomTemplate": "С{steel} ГОСТ 27772-2021",
                     "quantityTemplate": "4",
                     "mass": "0,79",

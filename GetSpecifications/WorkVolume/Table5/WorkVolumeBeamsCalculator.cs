@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Multicad.Symbols.Tables;
 using GetSpecifications.Specifications.Common;
 using GetSpecifications.Specifications.Table4;
+using GetSpecifications.WorkVolume.Common;
 
 namespace GetSpecifications.WorkVolume.Table5
 {
@@ -70,7 +71,9 @@ namespace GetSpecifications.WorkVolume.Table5
             int lastDataRow = table4.GetRowCountAbs() - 1;
 
             var massByName = new Dictionary<string, double>(StringComparer.Ordinal);
+            var roundedAreaSumByName = new Dictionary<string, double>(StringComparer.Ordinal);
             var ferByName = new Dictionary<string, (double coef, bool isBox)>(StringComparer.Ordinal);
+            var conflictByName = new Dictionary<string, bool>(StringComparer.Ordinal);
             var order = new List<string>();
             string steelGrade = "";
 
@@ -108,15 +111,30 @@ namespace GetSpecifications.WorkVolume.Table5
                 }
 
                 string key = catRow.WorkVolumeName;
+                double rowMass = qty * unitMass;
+
+                // Площадь позиции округляется сразу — согласно примеру ТЗ (поз. «1»: 71,22/2=35,61;
+                // поз. «а»: 450,43), а не после суммирования сырых значений по группе материала.
+                double rowArea = rowMass * catRow.FerCoefficient / 1000.0;
+                if (catRow.IsBoxSection)
+                    rowArea /= 2.0;
+                rowArea = Math.Round(rowArea, 2, MidpointRounding.AwayFromZero);
 
                 if (!massByName.ContainsKey(key))
                 {
                     massByName[key] = 0.0;
+                    roundedAreaSumByName[key] = 0.0;
                     ferByName[key] = (catRow.FerCoefficient, catRow.IsBoxSection);
+                    conflictByName[key] = false;
                     order.Add(key);
                 }
+                else if (ferByName[key].isBox != catRow.IsBoxSection)
+                {
+                    conflictByName[key] = true;
+                }
 
-                massByName[key] += qty * unitMass;
+                massByName[key] += rowMass;
+                roundedAreaSumByName[key] += rowArea;
             }
 
             if (order.Count == 0)
@@ -125,18 +143,28 @@ namespace GetSpecifications.WorkVolume.Table5
                 return false;
             }
 
+            List<string> sortedOrder = MaterialSortHelper.SortByProfile(order);
+
             var materials = new List<MaterialAggregate>();
             double totalMass = 0.0;
             double totalArea = 0.0;
 
-            foreach (string name in order)
+            foreach (string name in sortedOrder)
             {
                 double massKg = Math.Round(massByName[name], 2, MidpointRounding.AwayFromZero);
-                (double coef, bool isBox) = ferByName[name];
+                double area;
 
-                double area = massKg * coef / 1000.0;
-                if (isBox) area /= 2.0;
-                area = Math.Round(area, 2, MidpointRounding.AwayFromZero);
+                if (conflictByName[name])
+                {
+                    area = Math.Round(roundedAreaSumByName[name], 2, MidpointRounding.AwayFromZero);
+                }
+                else
+                {
+                    (double coef, bool isBox) = ferByName[name];
+                    area = massKg * coef / 1000.0;
+                    if (isBox) area /= 2.0;
+                    area = Math.Round(area, 2, MidpointRounding.AwayFromZero);
+                }
 
                 materials.Add(new MaterialAggregate
                 {

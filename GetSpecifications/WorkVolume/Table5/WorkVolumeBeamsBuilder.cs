@@ -23,6 +23,7 @@ namespace GetSpecifications.WorkVolume.Table5
             public string Name { get; set; } = "";
             public string Unit { get; set; } = "";
             public string Qty { get; set; } = "";
+            public bool IsSectionHeader { get; set; }
         }
 
         public bool TryBuild(McTable table4, Point3d insertPt, out string message)
@@ -64,13 +65,29 @@ namespace GetSpecifications.WorkVolume.Table5
 
         private List<RowData> BuildRows(WorkVolumeResult result)
         {
-            var rows = new List<RowData>();
+            var rows = new List<RowData>
+            {
+                new RowData
+                {
+                    Position = "",
+                    Name = "Элементы кабельных балок (объемы общие)",
+                    Unit = "",
+                    Qty = "",
+                    IsSectionHeader = true
+                }
+            };
 
             foreach (Table5RowTemplate catRow in _catalog.Rows)
             {
                 if (catRow.Position == "101")
                 {
-                    rows.Add(new RowData { Position = "101", Name = catRow.Name, Unit = "", Qty = "" });
+                    rows.Add(new RowData
+                    {
+                        Position = "101",
+                        Name = catRow.Name,
+                        Unit = FormatUnit(catRow.Unit),
+                        Qty = FormatDecimal2(result.TotalMassKg)
+                    });
 
                     foreach (MaterialAggregate mat in result.Materials)
                     {
@@ -169,7 +186,12 @@ namespace GetSpecifications.WorkVolume.Table5
         private void FillDataRow(McTable table, int row, RowData data)
         {
             SetCell(table, row, 0, data.Position, HorizTextAlign.Center);
-            SetCell(table, row, 1, data.Name, HorizTextAlign.Left, indent: 1.0);
+
+            if (data.IsSectionHeader)
+                SetCell(table, row, 1, data.Name, HorizTextAlign.Center);
+            else
+                SetCell(table, row, 1, data.Name, HorizTextAlign.Left, indent: 1.0);
+
             SetCell(table, row, 2, data.Unit, HorizTextAlign.Center);
             SetCell(table, row, 3, data.Qty, HorizTextAlign.Center);
         }

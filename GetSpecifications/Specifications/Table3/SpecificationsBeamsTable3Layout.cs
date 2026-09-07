@@ -28,5 +28,9 @@
         public const int HEADER_ROW_1 = 1;
         public const int HEADER_ROW_2 = 2;
         public const int FIRST_DATA_ROW = 4;
+
+        // === Индексы столбцов, читаемых при подсчёте длины покрытия (Table7) ===
+        public const int COL_DLINA = 2;
+        public const int COL_POKRYTIE = 8;
     }
 }

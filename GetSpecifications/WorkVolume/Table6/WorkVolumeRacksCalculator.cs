@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Multicad.Symbols.Tables;
 using GetSpecifications.Specifications.Common;
 using GetSpecifications.Specifications.Table2;
+using GetSpecifications.WorkVolume.Common;
 
 namespace GetSpecifications.WorkVolume.Table6
 {
@@ -160,15 +161,11 @@ namespace GetSpecifications.WorkVolume.Table6
 
                     if (isPipe)
                     {
-                        // Труба: Кол. — длина в метрах на данный тип стойки, уже просуммированная
-                        // при построении таблицы №2 (SpecificationsRacksTable2Builder). Количество
-                        // стоек здесь не участвует — оно учтено в самой длине.
                         massByName[key] += qty * unitMass;
                         lenByName[key] += qty;
                     }
                     else
                     {
-                        // Лист: Кол. — штук на одну стойку, домножаем на количество стоек данного типа.
                         massByName[key] += qty * unitMass * count;
                     }
                 }
@@ -182,11 +179,13 @@ namespace GetSpecifications.WorkVolume.Table6
                 return false;
             }
 
+            List<string> sortedOrder = MaterialSortHelper.SortByProfile(order);
+
             var materials = new List<RackMaterialAggregate>();
             double totalMass = 0.0;
             double totalArea = 0.0;
 
-            foreach (string name in order)
+            foreach (string name in sortedOrder)
             {
                 double massKg = Math.Round(massByName[name], 2, MidpointRounding.AwayFromZero);
                 (double coef, bool isPipe) = ferByName[name];

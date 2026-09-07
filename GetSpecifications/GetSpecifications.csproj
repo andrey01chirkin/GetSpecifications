@@ -18,6 +18,7 @@
 	<EmbeddedResource Include="Resources\Table4Catalog.json" />
 	<EmbeddedResource Include="Resources\Table5Catalog.json" />
 	<EmbeddedResource Include="Resources\Table6Catalog.json" />
+	<EmbeddedResource Include="Resources\Table7Catalog.json" />
   </ItemGroup>
 
   <ItemGroup>
