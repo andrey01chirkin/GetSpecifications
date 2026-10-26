@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.WindowsDesktop.App" />
+	<Compile Remove="old\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Table2Catalog.json" />
+	<EmbeddedResource Include="Resources\Table4Catalog.json" />
+	<EmbeddedResource Include="Resources\Table5Catalog.json" />
+	<EmbeddedResource Include="Resources\Table6Catalog.json" />
+	<EmbeddedResource Include="Resources\Table7Catalog.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="hostdbmgd">
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\hostdbmgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="hostmgd">
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\hostmgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="imapimgd">
+      <HintPath>D:\NC_SDK_RU_25.0.6785.4733.7843\include-x64\imapimgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MapiBaseTypes">
+      <HintPath>D:\NC_SDK_RU_26.0.7228.4926.8429\include-x64\mapibasetypes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="mapimgd">
+      <HintPath>D:\NC_SDK_RU_26.0.7228.4926.8429\include-x64\mapimgd.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
