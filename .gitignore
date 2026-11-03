@@ -6,3 +6,13 @@ obj/
 *.original
 *.dwl
 *.dwl2
+
+# Временные файлы Word (lock-файлы)
+~$*
+
+*.docx
+*.dwg
+
+# Резервные копии nanoCAD
+*.bak
+*.original
